@@ -2,7 +2,7 @@
     Модуль с описанием возможностей взаимодействия с БД для различных сущностей
 """
 __all__ = (
-    "repos",
+    "ReposRepository",
 )
 
-from . import repos
+from .repos import ReposRepository

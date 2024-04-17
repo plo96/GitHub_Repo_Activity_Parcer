@@ -4,3 +4,5 @@ venv/
 .env
 dist/
 09d0f27f-54f6-4f7f-b829-925ff3833942.jpg
+.pytest_cache
+__pycache__

@@ -2,6 +2,8 @@
 	Роутер для описания возможностей внешнего взаимодействия с репозиториями
 """
 from datetime import date
+from typing import Optional
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,9 +18,10 @@ router = APIRouter(tags=['Repos'], prefix="/repos")
 @router.get("/top100")
 @exceptions_processing
 async def get_top_100(
+		param: Optional[str] = None,
 		session: AsyncSession = Depends(get_session),
 ) -> list[RepoDTO]:
-	return await RepoService.get_top_100_repos(session=session)
+	return await RepoService.get_top_100_repos(session=session, param=param)
 
 
 @router.get("/{owner}/{repo}/activity")

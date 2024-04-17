@@ -5,4 +5,5 @@ __all__ = (
 	"RepoDTO",
 	"RepoActivityDTO",
 )
-from .repos import RepoDTO, RepoActivityDTO
+from .repos import RepoDTO
+from .repo_activities import RepoActivityDTO

@@ -17,11 +17,11 @@ router = APIRouter(tags=['Repos'], prefix="/repos")
 
 @router.get("/top100")
 @exceptions_processing
-async def get_top_100(
+async def get_top(
 		param: Optional[str] = None,
 		session: AsyncSession = Depends(get_session),
 ) -> list[RepoDTO]:
-	return await RepoService.get_top_100_repos(session=session, param=param)
+	return await RepoService.get_top_repos(session=session, param=param)
 
 
 @router.get("/{owner}/{repo}/activity")

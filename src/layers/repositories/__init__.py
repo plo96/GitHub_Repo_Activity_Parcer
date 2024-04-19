@@ -3,6 +3,8 @@
 """
 __all__ = (
     "ReposRepository",
+    "RepoActivitiesRepository",
 )
 
 from .repos import ReposRepository
+from .repo_activities import RepoActivitiesRepository

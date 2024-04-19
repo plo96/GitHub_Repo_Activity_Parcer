@@ -15,7 +15,6 @@ from src.core.models import Base
 from src.main import app
 
 NUM_TESTS = 5
-NUM_REPOS = 100
 
 fake_engine = create_async_engine(url=settings.TEST_DATABASE_URL_async_sqlite,
                                   poolclass=NullPool,

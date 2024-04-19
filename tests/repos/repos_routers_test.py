@@ -20,7 +20,7 @@ from src.core.models.repos import DEFAULT_SORT_PARAM, LIMIT_TOP_REPOS_LIST
 		"_smth_",
 	]
 )
-async def test_get_top(param: str | None, repos_url: str, async_client: AsyncSession, some_repo_added: None):
+async def test_get_top(param: str | None, repos_url: str, async_client: AsyncSession, some_repos_added: None):
 	param_url_suffix = f'?param={param}'
 	if not param:
 		param_url_suffix = ""
@@ -54,7 +54,7 @@ async def test_get_top(param: str | None, repos_url: str, async_client: AsyncSes
 		"_smth_",
 	]
 )
-async def test_get_top_with_few_data(param: str, repos_url: str, async_client: AsyncSession, a_few_repo_added: None):
+async def test_get_top_with_few_data(param: str, repos_url: str, async_client: AsyncSession, a_few_repos_added: None):
 	param_url_suffix = ""
 	if param:
 		param_url_suffix = f'?param={param}'

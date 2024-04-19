@@ -23,3 +23,17 @@ class ReposRepository:
 		)
 		res = await session.execute(stmt)
 		return list(res.all())
+	
+	@staticmethod
+	async def check_owner_repo_combination(
+			session: AsyncSession,
+			owner: str,
+			repo: str,
+	) -> bool:
+		"""Метод для проверки наличия комбинации владелец+репозиторий"""
+		stmt = text(
+			f"""SELECT * FROM repos
+				WHERE repos.owner == "{owner}" AND repos.repo == "{repo}" """
+		)
+		res = await session.execute(stmt)
+		return bool(res)

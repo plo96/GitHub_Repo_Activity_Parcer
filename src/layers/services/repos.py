@@ -19,8 +19,11 @@ class RepoService:
 			param: Optional[str],
 	) -> list[RepoDTO]:
 		result = await ReposRepository.get_repos_sorted_by_param(session=session, param=param)
+		
 		if len(result) < LIMIT_TOP_REPOS_LIST:
 			raise TooFewRepos(limit=LIMIT_TOP_REPOS_LIST, current_len=len(result))
+		
 		result = [entity._asdict() for entity in result]										# noqa
 		[entity.__delitem__('id') for entity in result]
+		
 		return [RepoDTO.model_validate(entity) for entity in result]

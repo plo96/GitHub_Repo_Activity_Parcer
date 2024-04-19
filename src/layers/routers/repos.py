@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.dependencies import get_session
 from src.project.exceptions import exceptions_processing
 from src.core.schemas import RepoDTO, RepoActivityDTO
-from src.layers.services import RepoService
+from src.layers.services import RepoService, RepoActivitiesService
 
 router = APIRouter(tags=['Repos'], prefix="/repos")
 
@@ -33,7 +33,7 @@ async def get_activity(
 		until: date,
 		session: AsyncSession = Depends(get_session),
 ) -> list[RepoActivityDTO]:
-	return await RepoService.get_activity(
+	return await RepoActivitiesService.get_activity(
 		session=session,
 		owner=owner,
 		repo=repo,

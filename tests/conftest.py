@@ -55,6 +55,12 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest.fixture
+async def session_factory() -> async_sessionmaker:
+    session_factory = get_fake_session_factory()
+    return session_factory
+
+
+@pytest.fixture
 async def clear_database() -> None:
     async with fake_engine.begin() as conn:
         await conn.run_sync(metadata.drop_all)

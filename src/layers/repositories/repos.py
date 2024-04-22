@@ -37,3 +37,43 @@ class ReposRepository:
 		)
 		res = await session.execute(stmt)
 		return bool(res)
+	
+	@staticmethod
+	async def get_param(
+			session: AsyncSession,
+			owner: str,
+			repo: str,
+			param: str,
+	) -> Row | None:
+		"""Метод для возврата заданного параметра репозитория"""
+		stmt = text(
+			f"""SELECT {param}	FROM repos
+				WHERE repo == "{repo}" AND owner == "{owner}" """
+		)
+		res = await session.execute(stmt)
+		return res.scalars().one_or_none()
+	
+	@staticmethod
+	async def delete_all(
+			session: AsyncSession,
+	) -> None:
+		"""Метод для удаления текущего топа репозиториев"""
+		stmt = text(
+			"""DELETE FROM repos"""
+		)
+		await session.execute(stmt)
+		await session.flush()
+	
+	@staticmethod
+	async def add_one(
+			session: AsyncSession,
+			new_repo: dict,
+	) -> None:
+		"""Метод для добавления одного репозитория"""
+		stmt = text(
+			f"""INSERT INTO repos
+				VALUES {", ".join(str(value) for value in new_repo.values())} """
+		)
+		await session.execute(stmt)
+		await session.flush()
+		

@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.dependencies import get_session
-from src.project.exceptions import exceptions_processing
+from src.project.decorators import router_exceptions_processing
 from src.core.schemas import RepoDTO, RepoActivityDTO
 from src.layers.services import RepoService, RepoActivitiesService
 
@@ -16,7 +16,7 @@ router = APIRouter(tags=['Repos'], prefix="/repos")
 
 
 @router.get("/top100")
-@exceptions_processing
+@router_exceptions_processing
 async def get_top(
 		param: Optional[str] = None,
 		session: AsyncSession = Depends(get_session),
@@ -25,7 +25,7 @@ async def get_top(
 
 
 @router.get("/{owner}/{repo}/activity")
-@exceptions_processing
+@router_exceptions_processing
 async def get_activity(
 		owner: str,
 		repo: str,

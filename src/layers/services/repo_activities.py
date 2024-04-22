@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.schemas import RepoActivityDTO
 from src.layers.repositories import RepoActivitiesRepository, ReposRepository
-from src.project.exceptions import NoRepoActivities, NoRepoOwnerCombination
+from src.project.exceptions import NoRepoActivities, NoRepoOwnerCombination, AddNewDataError
 
 
 class RepoActivitiesService:
@@ -16,7 +16,7 @@ class RepoActivitiesService:
 			since: date,
 			until: date,
 	) -> list[RepoActivityDTO]:
-
+		"""Метод для получения информации об активности в репозитории по дням"""
 		result = await RepoActivitiesRepository.get_repo_activities(
 			session=session,
 			owner=owner,
@@ -47,3 +47,26 @@ class RepoActivitiesService:
 		result = [RepoActivityDTO.model_validate(entity) for entity in result]
 		
 		return result
+	
+	@staticmethod
+	async def set_new_repo_activities(
+			session: AsyncSession,
+			new_repo_activities: list[list[dict]],
+	) -> None:
+		"""Метод добавления нового списка активностей репозиториев в БД"""
+		
+		try:
+			await RepoActivitiesRepository.delete_all_activities(
+				session=session
+			)
+			
+			for activities_list in new_repo_activities:
+				for repo_activity in activities_list:
+					await RepoActivitiesRepository.add_activity(
+						session=session,
+						repo_activity=repo_activity,
+					)
+		except Exception as _ex:
+			print(_ex)
+			raise AddNewDataError
+			

@@ -39,6 +39,12 @@ def get_new_repo_activity(
     )
 
 
+@pytest.fixture
+async def new_repo() -> dict:
+    """Фикстура для возвращения фейкового репозитория"""
+    return get_new_repo()
+
+
 @pytest.fixture(scope='session')
 def repos_url() -> str:
     """URL для запросов по репозиториям"""

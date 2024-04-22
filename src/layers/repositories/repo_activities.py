@@ -30,3 +30,26 @@ class RepoActivitiesRepository:
 			return
 		return list(res.all())
 	
+	@staticmethod
+	async def delete_all_activities(
+			session: AsyncSession,
+	) -> None:
+		"""Метод для удаления всех активностей"""
+		stmt = text(
+			"""DELETE FROM repo_activities"""
+		)
+		await session.execute(stmt)
+		await session.flush()
+		
+	@staticmethod
+	async def add_activity(
+			session: AsyncSession,
+			repo_activity: dict,
+	) -> None:
+		stmt = text(
+			f"""INSERT INTO repo_activities
+				VALUES {", ".join(str(value) for value in repo_activity.values())} """
+		)
+		await session.execute(stmt)
+		await session.flush()
+	

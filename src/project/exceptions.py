@@ -1,49 +1,32 @@
 """
    Кастомные exceptions для данного приложения;
-   Декоратор для обработки исключений;
 """
 from abc import ABC, abstractmethod
-from functools import wraps
 
-from fastapi import HTTPException, status
-
-
-def exceptions_processing(func):
-    @wraps(func)
-    async def wrapper(*args, **kwargs):
-        try:
-            return await func(*args, **kwargs)
-        except CustomHTTPException as _ex:
-            raise HTTPException(
-                status_code=_ex.status_code,
-                detail=_ex.detail,
-            )
-        except Exception as _ex:
-            print(_ex)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Unknown internal server error",
-            )
-
-    return wrapper
+from fastapi import status
 
 
-class CustomHTTPException(Exception, ABC):
-    """Родительский класс для всех кастомных исключений с последующим вызовом HTTPException"""
+class CustomException(Exception, ABC):
+    """Родительский класс для всех кастомных исключений"""
     
     @property
     @abstractmethod
     def detail(self):
         ...
     
+
+class CustomHTTPException(CustomException, ABC):
+    """Родительский класс для всех кастомных HTTP-исключений"""
+    
     @property
     @abstractmethod
     def status_code(self):
         ...
-    
+
 
 class ObjectNotFoundError(CustomHTTPException):
     """Не удалось найти объект с указанными параметрами в базе"""
+    
     def __init__(self, object_type: str = None, parameter: str = None):
         self.object_type = object_type
         self.parameter = parameter
@@ -59,6 +42,7 @@ class ObjectNotFoundError(CustomHTTPException):
 
 class TooFewRepos(CustomHTTPException):
     """Не удалось выгрузить установленное параметрами количество репозиториев"""
+    
     def __init__(self, limit: int = None, current_len: int = None):
         self.limit = limit
         self.current_len = current_len
@@ -94,3 +78,19 @@ class NoRepoOwnerCombination(CustomHTTPException):
     @property
     def status_code(self) -> str:
         return status.HTTP_404_NOT_FOUND
+
+
+class AddNewDataError(CustomException):
+    """Ошибка при добавлении новых данных в базу"""
+    
+    @property
+    def detail(self) -> str:
+        return "Error: application can not add fresh data to database"
+
+
+class ParsingNewDataError(CustomException):
+    """Ошибка при парсинге новых данных"""
+    
+    @property
+    def detail(self) -> str:
+        return "Error: application can not parse GitHub to take a fresh data"

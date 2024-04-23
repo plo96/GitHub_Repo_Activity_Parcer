@@ -1,8 +1,9 @@
+import datetime
 from datetime import date
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.schemas import RepoActivityDTO
+from src.core.schemas import RepoActivityDTO, RepoActivityUpload
 from src.layers.repositories import RepoActivitiesRepository, ReposRepository
 from src.project.exceptions import NoRepoActivities, NoRepoOwnerCombination, AddNewDataError
 
@@ -15,7 +16,7 @@ class RepoActivitiesService:
 			repo: str,
 			since: date,
 			until: date,
-	) -> list[RepoActivityDTO]:
+	) -> list[RepoActivityUpload]:
 		"""Метод для получения информации об активности в репозитории по дням"""
 		result = await RepoActivitiesRepository.get_repo_activities(
 			session=session,
@@ -36,7 +37,9 @@ class RepoActivitiesService:
 				raise NoRepoOwnerCombination
 		
 		result = [entity._asdict() for entity in result]			# noqa
+		
 		for entity in result:
+			# print(datetime.datetime.fromtimestamp(entity["date"]))
 			year = int(entity["date"][:4])
 			mounth = int(entity["date"][5:7])
 			day = int(entity["date"][8:10])
@@ -44,8 +47,8 @@ class RepoActivitiesService:
 			entity["date"] = date(year, mounth, day)
 			entity['authors'] = list(entity['authors'].split(", "))
 		
-		result = [RepoActivityDTO.model_validate(entity) for entity in result]
-		
+		result = [RepoActivityUpload.model_validate(entity) for entity in result]
+		# TODO repo_id
 		return result
 	
 	@staticmethod

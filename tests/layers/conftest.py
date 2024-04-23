@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from faker import Faker
 
 from src.core.models import Repo, RepoActivity
+from src.core.models.get_default import get_str_uuid
 from src.core.models.repos import LIMIT_TOP_REPOS_LIST
 
 fake = Faker()
@@ -41,8 +42,10 @@ def get_new_repo_activity(
 
 @pytest.fixture
 async def new_repo() -> dict:
-    """Фикстура для возвращения фейкового репозитория"""
-    return get_new_repo()
+    """Фикстура для возвращения ПОЛНОГО словаря для фейкового репозитория"""
+    new_repo = get_new_repo()
+    new_repo["id"] = get_str_uuid()
+    return new_repo
 
 
 @pytest.fixture(scope='session')

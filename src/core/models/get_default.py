@@ -1,6 +1,7 @@
 from uuid import UUID, uuid4
 
 
-def get_uuid() -> UUID:
+def get_str_uuid() -> str:
 	"""Функция для получения значения uuid по умолчанию"""
-	return uuid4()
+	uuid: UUID = uuid4()
+	return uuid.__str__()

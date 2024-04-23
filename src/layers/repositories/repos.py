@@ -67,12 +67,12 @@ class ReposRepository:
 	@staticmethod
 	async def add_one(
 			session: AsyncSession,
-			new_repo: dict,
+			repo_dict: dict,
 	) -> None:
 		"""Метод для добавления одного репозитория"""
 		stmt = text(
-			f"""INSERT INTO repos
-				VALUES {", ".join(str(value) for value in new_repo.values())} """
+			f"""INSERT INTO repos ({", ".join(str(value) for value in repo_dict.keys())})
+				VALUES ({", ".join(f'"{value}"' for value in repo_dict.values())}) """
 		)
 		await session.execute(stmt)
 		await session.flush()

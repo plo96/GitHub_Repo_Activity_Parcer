@@ -3,7 +3,9 @@
 """
 __all__ = (
 	"RepoDTO",
+	"RepoUpload",
 	"RepoActivityDTO",
+	"RepoActivityUpload",
 )
-from .repos import RepoDTO
-from .repo_activities import RepoActivityDTO
+from .repos import RepoDTO, RepoUpload
+from .repo_activities import RepoActivityDTO, RepoActivityUpload

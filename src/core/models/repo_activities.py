@@ -1,8 +1,7 @@
 from datetime import datetime
-from uuid import UUID
 
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import ForeignKey, Uuid
+from sqlalchemy import ForeignKey, String
 
 from .base import Base
 
@@ -10,8 +9,8 @@ from .base import Base
 class RepoActivity(Base):
 	"""ОРМ-модель для активности репозиториев GH"""
 	__tablename__ = "repo_activities"
-	repo_id: Mapped[UUID] = mapped_column(  	# уникальный id репозитория
-		Uuid,
+	repo_id: Mapped[str] = mapped_column(  		# уникальный id репозитория
+		String,
 		ForeignKey("repos.id"),
 		primary_key=True,
 	)

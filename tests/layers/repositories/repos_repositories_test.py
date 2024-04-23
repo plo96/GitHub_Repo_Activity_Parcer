@@ -9,7 +9,7 @@ from src.core.models import Repo
 from tests.conftest import NUM_TESTS
 
 
-@pytest.mark.parametrize("_", range(1))
+@pytest.mark.parametrize("_", range(NUM_TESTS))
 async def test_add_one(
 		_,
 		session_factory: async_sessionmaker,
@@ -19,16 +19,12 @@ async def test_add_one(
 		
 		await ReposRepository.add_one(
 			session=session,
-			new_repo=new_repo,
+			repo_dict=new_repo,
 		)
-		
-		stmt = select(Repo).filter_by(**new_repo)
-		res = await session.execute(stmt)
-		
-		print(res)
-		res = res.scalars().one_or_none()
-		print(res)
-		assert res == tuple(new_repo.values())
+
+		res = await session.get(Repo, new_repo.get("id"))
+		res = res.__dict__
+		assert all(new_repo[key] == res[key] for key in new_repo.keys())
 
 
 async def test_delete_all(
@@ -59,17 +55,18 @@ async def test_get_param(
 		
 		await ReposRepository.add_one(
 			session=session,
-			new_repo=new_repo,
+			repo_dict=new_repo,
 		)
 		
-		await ReposRepository.get_param(
+		param = choice(list(new_repo.keys()))
+		
+		param_value = await ReposRepository.get_param(
 			session=session,
 			owner=new_repo["owner"],
 			repo=new_repo["repo"],
-			param=choice(list(new_repo.keys())),
+			param=param,
 		)
 		
-		stmt = select(Repo).filter_by(**new_repo)
-		res = await session.execute(stmt)
-		assert not res.scalars().all()
-
+		res = await session.get(Repo, new_repo.get("id"))
+		
+		assert res.__getattribute__(param) == param_value

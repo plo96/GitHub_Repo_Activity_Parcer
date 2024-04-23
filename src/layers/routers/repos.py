@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.dependencies import get_session
 from src.project.decorators import router_exceptions_processing
-from src.core.schemas import RepoDTO, RepoActivityDTO
+from src.core.schemas import RepoUpload, RepoActivityUpload
 from src.layers.services import RepoService, RepoActivitiesService
 
 router = APIRouter(tags=['Repos'], prefix="/repos")
@@ -20,7 +20,7 @@ router = APIRouter(tags=['Repos'], prefix="/repos")
 async def get_top(
 		param: Optional[str] = None,
 		session: AsyncSession = Depends(get_session),
-) -> list[RepoDTO]:
+) -> list[RepoUpload]:
 	return await RepoService.get_top_repos(session=session, param=param)
 
 
@@ -32,7 +32,7 @@ async def get_activity(
 		since: date,
 		until: date,
 		session: AsyncSession = Depends(get_session),
-) -> list[RepoActivityDTO]:
+) -> list[RepoActivityUpload]:
 	return await RepoActivitiesService.get_activity(
 		session=session,
 		owner=owner,

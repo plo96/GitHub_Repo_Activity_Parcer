@@ -51,8 +51,7 @@ class RepoActivityDTO(RepoActivityBase):
 		for index, activity in enumerate(activities_list):
 			activity["authors"] = list(activity["authors"])
 			activity["repo_id"] = None
-			activities_list[index] = RepoActivityDTO.model_validate(**activity)
-		
+			activities_list[index] = RepoActivityDTO.model_validate(activity)
 		return activities_list
 	
 	

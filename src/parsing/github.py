@@ -9,16 +9,13 @@ from src.core.schemas import RepoActivityDTO, RepoDTO
 from src.core.models.repos import LIMIT_TOP_REPOS_LIST
 from src.project.decorators import multiply_parsing_trying
 
-GH_REST_API_URL_TOP = 'https://api.github.com/search/repositories'
-
 
 class GithubParserRest:
     
     def __init__(self, github_token: str = None):
         """
-        Инициализация объекта GithubParserRest
-
-        :param github_token: токен для аутентификации GitHub API
+        Инициализация объекта GithubParserRest, служащего для парсинга GitHub с использованием его REST API.
+        :param github_token: токен для аутентификации GitHub API.
         """
         self.github_token = github_token
         self.headers = {'Authorization': f'token {self.github_token}'} if self.github_token else {}
@@ -26,27 +23,18 @@ class GithubParserRest:
     @multiply_parsing_trying
     async def parsing_top(self) -> list[RepoDTO] | None:
         """
-        Парсинг топа репозиториев по звёздам с гитхаба
-
-        :return: список словарей с указанными в методе данными о репозиториях
+        Парсинг топа репозиториев по звёздам с гитхаба.
+        :return: Список словарей с указанными в методе данными о репозиториях или None в случае неудачного запроса.
         """
-        new_top_repos: list = []
+        url = 'https://api.github.com/search/repositories'
         params = {'q': 'stars:>0', 'sort': 'stars', 'order': 'desc', 'per_page': LIMIT_TOP_REPOS_LIST}
-        
-        # api_keys_model_keys = {
-        #     "full_name": "repo",
-        #     "owner": "owner",
-        #     "stargazers_count": "stars",
-        #     "watchers": "watchers",
-        #     "forks": "forks",
-        #     "open_issues": "open_issues",
-        #     "language": "language",
-        # }
+
+        new_top_repos: list = []
         
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get(
-                    url=GH_REST_API_URL_TOP,
+                    url=url,
                     params=params,
                     headers=self.headers,
                     timeout=5,
@@ -72,36 +60,27 @@ class GithubParserRest:
                 position_cur=index,
                 position_prev=None,
             )
-            # new_repo: dict = {}
-            # for api_key, model_key in api_keys_model_keys.items():
-            #     new_repo[model_key] = repo[api_key] if api_key != "owner" else repo[api_key]['login']
             new_top_repos.append(new_repo)
         return new_top_repos
     
     @multiply_parsing_trying
-    async def parsing_activities(self, repo: dict) -> list[RepoActivityDTO] | None:
+    async def parsing_activities(self, repo: RepoDTO) -> list[RepoActivityDTO] | None:
         """
-        Метод для парсинга активности репозиториев из списка с гитхаба
-        
+        Метод для парсинга активности репозиториев из списка с гитхаба.
         :param repo: репозиторий для которого мы ищем активности.
-        
-        :return:
+        :return: список ДТО для активности репозиториев.
         """
-        url = f"https://api.github.com/repos/{repo["repo"]}/commits"
-        # params = {"since": "2024-01-01T00:00:00Z", "until": "2024-04-01T00:00:00Z"}
+        url = f"https://api.github.com/repos/{repo.repo}/commits"
     
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get(
-                    url=GH_REST_API_URL_TOP,
-                    # params=params,
+                    url=url,
                     headers=self.headers,
                     timeout=5,
                 )
             except TimeoutError:
                 return
-            
-            print(response.status_code)
             
             if response.status_code != 200:
                 return
@@ -112,7 +91,7 @@ class GithubParserRest:
         for commit in response_data:
             commit_dict = dict(
                 name=commit['commit']['author']['name'],
-                date=datetime.fromisoformat(commit['commit']['author']['date']).date(),
+                date=datetime.strptime(commit['commit']['author']['date'], "%Y-%m-%dT%H:%M:%SZ").date(),
             )
             
             list_of_commits.append(commit_dict)

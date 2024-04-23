@@ -1,3 +1,8 @@
+"""
+	Сервис для осуществления бизнес-логики при работе с активностями репозиториев
+"""
+from asyncio import sleep as asleep
+
 from fastapi_utilities import repeat_at
 
 from src.project import settings
@@ -9,14 +14,20 @@ from src.core.dependencies import get_actual_session_factory
 
 @repeat_at(cron="0 7 * * *")
 async def schedule_parsing() -> None:
+	"""
+	Переодическая функция для парсинга данных с GitHub и последующей их записи в базу данных приложения.
+	:return: None.
+	"""
 	try:
+		print("Start parsing")
 		gh_parser = GithubParserRest(settings.API_KEY)
 		
 		new_top_repos = await gh_parser.parsing_top()
 		
-		new_repo_activities: list = []
+		new_repos_activities: list = []
 		for repo in new_top_repos:
-			new_repo_activities.append(
+			await asleep(2)
+			new_repos_activities.append(
 				await gh_parser.parsing_activities(
 					repo=repo,
 				)
@@ -31,16 +42,17 @@ async def schedule_parsing() -> None:
 					new_top_repos=new_top_repos,
 				)
 			
-				for repo, activities_list in zip(new_top_repos, new_repo_activities):
+				for repo, activities_list in zip(new_top_repos, new_repos_activities):
 					for activity in activities_list:
 						activity.repo_id = repo.id
 				
 				await RepoActivitiesService.set_new_repo_activities(
 					session=session,
-					new_repo_activities=new_repo_activities,
+					new_repos_activities=new_repos_activities,
 				)
 			
 				await session.commit()
+				print('DB changes are commited')
 			except CustomException as _ex:
 				await session.rollback()
 				raise _ex

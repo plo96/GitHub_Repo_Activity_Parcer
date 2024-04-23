@@ -16,10 +16,10 @@ class RepoDTO(RepoBase):
 	position_cur: int						# Текущая позиция репозитория в топе
 	position_prev: Optional[int]			# Предыдущая позиция репозитория в топе
 	stars: int								# Количество звёзд позиция репозитория в топе
-	watches: int							# Количество просмотров
+	watchers: int							# Количество просмотров
 	forks: int								# Количество форков
 	open_issues: int						# Количество открытых issues
-	language: str							# Язык
+	language: Optional[str]					# Язык
 
 
 class RepoUpload(RepoBase):

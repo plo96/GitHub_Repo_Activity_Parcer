@@ -44,11 +44,11 @@ class RepoActivitiesRepository:
 	@staticmethod
 	async def add_activity(
 			session: AsyncSession,
-			repo_activity: dict,
+			repo_activity_dict: dict,
 	) -> None:
 		stmt = text(
 			f"""INSERT INTO repo_activities
-				VALUES {", ".join(str(value) for value in repo_activity.values())} """
+				VALUES {", ".join(f'"{value}"' for value in repo_activity_dict.values())} """
 		)
 		await session.execute(stmt)
 		await session.flush()

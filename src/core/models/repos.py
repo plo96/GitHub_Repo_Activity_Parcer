@@ -21,7 +21,7 @@ class Repo(Base):
 	position_cur: Mapped[int]  				# Текущая позиция репозитория в топе
 	position_prev: Mapped[int | None]  		# Предыдущая позиция репозитория в топе
 	stars: Mapped[int]  					# Количество звёзд позиция репозитория в топе
-	watches: Mapped[int] 					# Количество просмотров
+	watchers: Mapped[int] 					# Количество просмотров
 	forks: Mapped[int]  					# Количество форков
 	open_issues: Mapped[int]  				# Количество открытых issues
-	language: Mapped[str]  					# Язык
+	language: Mapped[str | None]  			# Язык

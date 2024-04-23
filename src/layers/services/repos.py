@@ -1,25 +1,35 @@
 """
-	Сервисы для осуществления бизнес-логики работ с репозиториями GitHub
+	Сервис для осуществления бизнес-логики при работе с репозиториями GitHub
 """
+
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.schemas import RepoDTO, RepoUpload
 from src.core.models.get_default import get_str_uuid
+from src.core.schemas import RepoDTO, RepoUpload
 from src.core.models.repos import LIMIT_TOP_REPOS_LIST
 from src.project.exceptions import TooFewRepos, AddNewDataError
 from src.layers.repositories import ReposRepository
 
 
 class RepoService:
+	"""
+		Класс сервиса для осуществления бизнес-логики при работе с репозиториями GitHub.
+		Используются статические методы. Экземпляр класса не создаётся.
+	"""
 	
 	@staticmethod
 	async def get_top_repos(
 			session: AsyncSession,
 			param: Optional[str],
 	) -> list[RepoUpload]:
-		"""Метод получения топа репозиториев из БД"""
+		"""
+		Метод получения топа репозиториев из БД.
+		:param session: Сессия для доступа к БД.
+		:param param: Параметр по которому осуществляется сортировка. По умолчанию - количество звёзд.
+		:return: Список моделей с репозиториям GitHub в запрашиваемом порядке.
+		"""
 		result = await ReposRepository.get_repos_sorted_by_param(session=session, param=param)
 		
 		if len(result) < LIMIT_TOP_REPOS_LIST:
@@ -34,19 +44,24 @@ class RepoService:
 			session: AsyncSession,
 			new_top_repos: list[RepoDTO],
 	) -> None:
-		"""Метод обновления данных по топу репозиториев в БД
-		   добавляет в список репозиториев присвоенное id в формате UUID"""
+		"""
+		Метод обновления данных по топу репозиториев в БД.
+		:param session: Сессия для доступа к БД.
+		:param new_top_repos: Список с новым топом репозиториев GitHub, которые перезапишут имеющийся топ.
+		:return: None.
+		"""
 		
 		try:
 			for position, new_repo in enumerate(new_top_repos):
-				new_repo["position_prev"] = ReposRepository.get_param(
+				position_prev = await ReposRepository.get_param(
 					session=session,
 					owner=new_repo.owner,
 					repo=new_repo.repo,
 					param="position_cur",
 				)
-				new_repo.id = get_str_uuid()
-			
+				new_repo.__setattr__("position_prev", position_prev)
+				new_repo.__setattr__("id", get_str_uuid())
+
 			await ReposRepository.delete_all(session=session)
 			
 			for new_repo in new_top_repos:
@@ -55,18 +70,7 @@ class RepoService:
 					session=session,
 					repo_dict=new_repo.model_dump(),
 				)
-				
-				res = await ReposRepository.get_param(
-					session=session,
-					owner=new_repo["owner"],
-					repo=new_repo["repo"],
-					param="id",
-				)
-				new_id = str(res)
-				if not new_id:
-					raise AddNewDataError
-				# new_repo.id = UUID(new_id).__str__()
-				new_repo.id = new_id
+
 		except Exception as _ex:
 			print(_ex)
 			raise AddNewDataError

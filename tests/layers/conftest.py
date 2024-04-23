@@ -21,7 +21,7 @@ def get_new_repo() -> dict:
         position_cur=fake.random.randint(1, 100),
         position_prev=fake.random.randint(1, 100),
         stars=fake.random.randint(1, 5000),
-        watches=fake.random.randint(1, 5000),
+        watchers=fake.random.randint(1, 5000),
         forks=fake.random.randint(1, 50),
         open_issues=fake.random.randint(0, 50),
         language=fake.language_name(),

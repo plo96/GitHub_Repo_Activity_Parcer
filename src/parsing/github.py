@@ -12,11 +12,20 @@ GH_REST_API_URL_TOP = 'https://api.github.com/search/repositories'
 class GithubParser:
     
     def __init__(self, github_token: str = None):
+        """
+        Инициализация объекта GithubParser
+
+        :param github_token: токен для аутентификации GitHub API
+        """
         self.github_token = github_token
     
     @multiply_parsing_trying
     async def parsing_top_rest_api(self) -> list[dict] | None:
-        """Метод для парсинга топа репозиториев по звёздам с гитхаба"""
+        """
+        Парсинг топа репозиториев по звёздам с гитхаба
+
+        :return: список словарей с указанными в методе данными о репозиториях
+        """
         new_top_repos: list = []
         params = {'q': 'stars:>0', 'sort': 'stars', 'order': 'desc', 'per_page': LIMIT_TOP_REPOS_LIST}
         headers = {'Authorization': f'token {self.github_token}'} if self.github_token else {}

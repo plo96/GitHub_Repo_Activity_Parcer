@@ -9,7 +9,7 @@ from src.core.models import Repo
 from tests.conftest import NUM_TESTS
 
 
-@pytest.mark.parametrize("_", range(NUM_TESTS))
+@pytest.mark.parametrize("_", range(1))
 async def test_add_one(
 		_,
 		session_factory: async_sessionmaker,

@@ -1,5 +1,5 @@
 """
-    Кастомные декораторы
+    Кастомные декораторы для приложения.
 """
 from functools import wraps
 from asyncio import sleep as asleep
@@ -7,9 +7,10 @@ from asyncio import sleep as asleep
 from fastapi import HTTPException
 
 from .exceptions import CustomHTTPException, status, ParsingNewDataError
-
+from .config import settings
 
 def router_exceptions_processing(func):
+    """Обработка исключений для роутеров."""
     @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
@@ -23,16 +24,17 @@ def router_exceptions_processing(func):
             print(_ex)
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Unknown internal server error",
+                detail="Unknown internal server error.",
             )
 
     return wrapper
 
 
 def multiply_parsing_trying(func):
+    """Автоматическое повторение попытки парсинга в случае неудачи при парсинге или записи в БД."""
     @wraps(func)
     async def wrapper(*args, **kwargs):
-        for _ in range(5):
+        for _ in range(settings.MAX_PARSING_TRYING):
             result = await func(*args, **kwargs)
             if result:
                 break

@@ -16,6 +16,7 @@ fake = Faker()
 def get_new_repo() -> dict:
     """Фейковый репозиторий для заполнения базы данных"""
     return dict(
+        id=get_str_uuid(),
         repo=fake.text(30),
         owner=fake.user_name(),
         position_cur=fake.random.randint(1, 100),
@@ -42,10 +43,8 @@ def get_new_repo_activity(
 
 @pytest.fixture
 async def new_repo() -> dict:
-    """Фикстура для возвращения ПОЛНОГО словаря для фейкового репозитория"""
-    new_repo = get_new_repo()
-    new_repo["id"] = get_str_uuid()
-    return new_repo
+    """Фикстура для возвращения словаря для фейкового репозитория"""
+    return get_new_repo()
 
 
 @pytest.fixture(scope='session')
@@ -56,6 +55,18 @@ def repos_url() -> str:
 
 @pytest.fixture
 async def owners_repos(
+        session_factory: async_sessionmaker,
+) -> list[tuple]:
+    """Список кортежей с парами владелец/репозиторий"""
+    async with (session_factory() as session):
+        stmt = select(Repo.owner, Repo.repo)
+        res = await session.execute(stmt)
+        owners_repos = [entity._tuple() for entity in res.all()]        # noqa
+        return owners_repos
+
+
+@pytest.fixture
+async def owners_repos_with_activities(
         session_factory: async_sessionmaker,
 ) -> list[tuple]:
     """Список кортежей с парами владелец/репозиторий для репозиториев с изменениями"""

@@ -1,5 +1,5 @@
 """
-   Кастомные exceptions для данного приложения;
+   Кастомные exceptions для приложения.
 """
 from abc import ABC, abstractmethod
 
@@ -7,7 +7,7 @@ from fastapi import status
 
 
 class CustomException(Exception, ABC):
-    """Родительский класс для всех кастомных исключений"""
+    """Родительский класс для всех кастомных исключений."""
     
     @property
     @abstractmethod
@@ -16,7 +16,7 @@ class CustomException(Exception, ABC):
     
 
 class CustomHTTPException(CustomException, ABC):
-    """Родительский класс для всех кастомных HTTP-исключений"""
+    """Родительский класс для всех кастомных HTTP-исключений."""
     
     @property
     @abstractmethod
@@ -24,26 +24,14 @@ class CustomHTTPException(CustomException, ABC):
         ...
 
 
-class ObjectNotFoundError(CustomHTTPException):
-    """Не удалось найти объект с указанными параметрами в базе"""
-    
-    def __init__(self, object_type: str = None, parameter: str = None):
-        self.object_type = object_type
-        self.parameter = parameter
-    
-    @property
-    def detail(self) -> str:
-        return f"{self.object_type} with this {self.parameter} is not found in database"
-    
-    @property
-    def status_code(self) -> str:
-        return status.HTTP_404_NOT_FOUND
-
-
 class TooFewRepos(CustomHTTPException):
-    """Не удалось выгрузить установленное параметрами количество репозиториев"""
+    """Не удалось выгрузить установленное параметрами количество репозиториев."""
     
     def __init__(self, limit: int = None, current_len: int = None):
+        """
+        :param limit: Установленное число репозиториев в топе.
+        :param current_len: Число репозиториев, полученных в результате запроса.
+        """
         self.limit = limit
         self.current_len = current_len
     
@@ -57,11 +45,11 @@ class TooFewRepos(CustomHTTPException):
 
 
 class NoRepoActivities(CustomHTTPException):
-    """В базе нет данных касательно изменений запрашиваемого репозитория за данный период"""
+    """В базе нет данных касательно изменений запрашиваемого репозитория за данный период."""
     
     @property
     def detail(self) -> str:
-        return "Activities for this period is not found"
+        return "Activities for this period is not found."
     
     @property
     def status_code(self) -> str:
@@ -69,11 +57,11 @@ class NoRepoActivities(CustomHTTPException):
 
 
 class NoRepoOwnerCombination(CustomHTTPException):
-    """В базе нет комбинации такого репозитория и владельца"""
+    """В базе нет комбинации такого репозитория и владельца."""
     
     @property
     def detail(self) -> str:
-        return "Combination for this owner and repo is not found"
+        return "Combination for this owner and repo is not found."
     
     @property
     def status_code(self) -> str:
@@ -81,16 +69,16 @@ class NoRepoOwnerCombination(CustomHTTPException):
 
 
 class AddNewDataError(CustomException):
-    """Ошибка при добавлении новых данных в базу"""
+    """Ошибка при добавлении новых данных в базу."""
     
     @property
     def detail(self) -> str:
-        return "Error: application can not add fresh data to database"
+        return "Error: application can not add fresh data to database."
 
 
 class ParsingNewDataError(CustomException):
-    """Ошибка при парсинге новых данных"""
+    """Ошибка при парсинге новых данных."""
     
     @property
     def detail(self) -> str:
-        return "Error: application can not parse GitHub to take a fresh data"
+        return "Error: application can not parse GitHub to take a fresh data."

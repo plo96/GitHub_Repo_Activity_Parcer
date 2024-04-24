@@ -1,11 +1,15 @@
+"""
+	Модель для сущности репозитория GitHub.
+	Некоторые константы, связанные с этой сущностью, необходимые для работы программы.
+"""
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
 from .get_default import get_str_uuid
 
-DEFAULT_SORT_PARAM = "stars"
-LIMIT_TOP_REPOS_LIST = 100
+DEFAULT_SORT_PARAM = "stars"				# Параметр по умолчанию для сортировки репозиториев при чтении из БД
+LIMIT_TOP_REPOS_LIST = 100					# Число репозиториев в топе (БД)
 
 
 class Repo(Base):

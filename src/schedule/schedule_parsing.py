@@ -1,5 +1,5 @@
 """
-	Сервис для осуществления бизнес-логики при работе с активностями репозиториев
+	Настройка задачи парсинга по расписанию.
 """
 from asyncio import sleep as asleep
 
@@ -16,10 +16,10 @@ from src.core.dependencies import get_actual_session_factory
 async def schedule_parsing() -> None:
 	"""
 	Переодическая функция для парсинга данных с GitHub и последующей их записи в базу данных приложения.
-	:return: None.
+	:return: None. Текстовый вывод деталей ошибок в случае их возникновения, без прерывания работы программы.
 	"""
 	try:
-		print("Start parsing")
+		print("Start parsing.")
 		gh_parser = GithubParserRest(settings.API_KEY)
 		
 		new_top_repos = await gh_parser.parsing_top()
@@ -32,7 +32,9 @@ async def schedule_parsing() -> None:
 					repo=repo,
 				)
 			)
-			
+		
+		print('Parsing is done.')
+		
 		session_factory = get_actual_session_factory()
 		async with session_factory() as session:
 			
@@ -44,7 +46,7 @@ async def schedule_parsing() -> None:
 			
 				for repo, activities_list in zip(new_top_repos, new_repos_activities):
 					for activity in activities_list:
-						activity.repo_id = repo.id
+						activity.__setattr__("repo_id", repo.id)
 				
 				await RepoActivitiesService.set_new_repo_activities(
 					session=session,
@@ -52,11 +54,11 @@ async def schedule_parsing() -> None:
 				)
 			
 				await session.commit()
-				print('DB changes are commited')
 			except CustomException as _ex:
 				await session.rollback()
 				raise _ex
-	
+			
+		print('DB changes are commited.')
 	except CustomException as _ex:
 		print(_ex.detail)
 	except Exception as _ex:

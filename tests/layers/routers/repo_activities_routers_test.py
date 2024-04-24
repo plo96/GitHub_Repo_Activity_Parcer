@@ -3,17 +3,17 @@ from random import choice
 
 from httpx import AsyncClient
 
-from src.project.exceptions import NoRepoActivities
+from src.project.exceptions import NoRepoActivities, NoRepoOwnerCombination
 
 
 async def test_get_repo_activities(
 		some_repo_activities_added: None,
 		repos_url: str,
-		owners_repos: list[tuple],
+		owners_repos_with_activities,
 		since_until: tuple[date, date],
 		async_client: AsyncClient,
 ):
-	owner, repo = choice(owners_repos)
+	owner, repo = choice(owners_repos_with_activities)
 	since, until = since_until
 	result = await async_client.get(repos_url + f'{owner}/{repo}/activity?since={since}&until={until}')
 	assert result.status_code == 200
@@ -25,14 +25,42 @@ async def test_get_repo_activities(
 async def test_get_repo_activities_bad_dates(
 		some_repo_activities_added: None,
 		repos_url: str,
-		owners_repos: list[tuple],
+		owners_repos_with_activities,
 		since_until: tuple[date, date],
 		async_client: AsyncClient,
 ):
-	owner, repo = choice(owners_repos)
+	owner, repo = choice(owners_repos_with_activities)
 	since, until = since_until
 	since = until.replace(year=until.year + 1)
 	until = until.replace(year=until.year + 2)
 	result = await async_client.get(repos_url + f'{owner}/{repo}/activity?since={since}&until={until}')
 	assert result.status_code == 404
 	assert result.json()['detail'] == NoRepoActivities().detail
+
+
+async def test_get_repo_activities_bad_fullname(
+		some_repo_activities_added: None,
+		repos_url: str,
+		owners_repos_with_activities,
+		since_until: tuple[date, date],
+		async_client: AsyncClient,
+):
+	owner, repo = choice(owners_repos_with_activities)
+	since, until = since_until
+	result = await async_client.get(repos_url + f'{owner}/{repo[:-1]}/activity?since={since}&until={until}')
+	assert result.status_code == 404
+	assert result.json()['detail'] == NoRepoOwnerCombination().detail
+
+
+async def test_get_repo_activities_bad_owner(
+		some_repo_activities_added: None,
+		repos_url: str,
+		owners_repos_with_activities,
+		since_until: tuple[date, date],
+		async_client: AsyncClient,
+):
+	owner, repo = choice(owners_repos_with_activities)
+	since, until = since_until
+	result = await async_client.get(repos_url + f'{owner[:-1]}/{repo}/activity?since={since}&until={until}')
+	assert result.status_code == 404
+	assert result.json()['detail'] == NoRepoOwnerCombination().detail

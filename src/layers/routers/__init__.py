@@ -1,5 +1,5 @@
 """
-    Модуль с реализацией конкретных роутеров для различных сущностей
+    Модуль с реализацией роутеров для взаимодействия с приложением по API.
 """
 __all__ = (
     "router",
@@ -8,7 +8,9 @@ __all__ = (
 from fastapi import APIRouter
 
 from .repos import router as repos_router
+from .repo_activities import router as repo_activities_router
 
-router = APIRouter(tags=['api_v1'])
+router = APIRouter()
 
 router.include_router(repos_router)
+router.include_router(repo_activities_router)

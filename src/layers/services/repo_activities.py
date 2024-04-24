@@ -26,12 +26,14 @@ class RepoActivitiesService:
 	) -> list[RepoActivityUpload]:
 		"""
 		Получение информации об активности в конкретном репозитории по дням за определённый промежуток времени.
+		Метод для ответа по API.
 		:param session: Сессия для доступа к БД.
 		:param owner: Имя владельца репозитория на GitHub.
 		:param repo: full_name репозитория на GitHub.
-		:param since: Начальная точка для выборки.
-		:param until: Конечная точка для выборки.
-		:return:   Список моделей с активностями данного репозитория по дням в пределах запрашиваемого периода.
+		:param since: Начальная точка по времени для выборки.
+		:param until: Конечная точка по времени для выборки.
+		:return: Список моделей с активностями данного репозитория по дням в пределах запрашиваемого периода.
+				 Вызов ошибки из класса CustomHTTPException в случае ошибок.
 		"""
 		result = await RepoActivitiesRepository.get_repo_activities(
 			session=session,
@@ -67,9 +69,11 @@ class RepoActivitiesService:
 	) -> None:
 		"""
 		Добавление нового списка активностей репозиториев в БД.
-		:param session: сессия для доступа к БД.
-		:param new_repos_activities: список со списками активностей для каждого репозитория.
+		Метод для вызова из периодической задачи.
+		:param session: Сессия для доступа к БД.
+		:param new_repos_activities: Список со списками активностей для каждого репозитория.
 		:return: None.
+				 Вызов ошибки AddNewDataError в случае возникновения ошибки.
 		"""
 		
 		try:

@@ -1,3 +1,11 @@
+"""
+    Основной файл приложения:
+    - Инициализация приложения;
+    - Подключение роутеров;
+    - Настройка жизненного цикла, подключение задач по расписанию;
+    - Настройка и подключение middleware;
+    - Запуск приложения через uvicorn.
+"""
 from contextlib import asynccontextmanager
 from time import time
 
@@ -6,14 +14,14 @@ import uvicorn
 
 from src.project.decorators import router_exceptions_processing
 from src.layers.routers import router
-from src.schedule import schedule_parsing
+# from src.schedule import schedule_parsing
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # noqa
     """'Обертка' для реализации событий до и после запуска приложения"""
     print('Server starts')
-    await schedule_parsing()
+    # await schedule_parsing()
     yield
     print('Server stops')
 
@@ -29,6 +37,12 @@ app.include_router(router, prefix="/api")
 
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
+    """
+    Настройка middleware.
+    :param request: Параметры входящего запроса.
+    :param call_next: Функция формирования ответа.
+    :return: Ответ от сервера.
+    """
     start_time = time()
     response = await call_next(request)
     process_time = time() - start_time

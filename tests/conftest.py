@@ -14,7 +14,7 @@ from src.project import settings
 from src.core.models import Base
 from src.main import app
 
-NUM_TESTS = 1
+NUM_TESTS = 3
 
 fake_engine = create_async_engine(url=settings.TEST_DATABASE_URL_async_sqlite,
                                   poolclass=NullPool,

@@ -1,15 +1,24 @@
+"""
+	Создание и инициализация класса, ответственного за подключение к базе данных.
+"""
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from src.project import settings
 
 
 class DatabaseHelper:
-	"""Класс, обеспечивающий подключение к базе данных с определёнными настройками"""
+	"""Класс, обеспечивающий подключение к базе данных с определёнными настройками."""
 	
-	def __init__(self, url: str, echo: str):
+	def __init__(self, url: str, echo: bool):
+		"""
+		Инициализация DatabaseHelper(на основе SQLAlchemy).
+		Создание движка подключения и фабрики сессий на основе этого движка.
+		:param url: Адресс для подключения к базе данных.
+		:param echo: Вывод отладочных сообщений в консоль (True/False)
+		"""
 		self._engine = create_async_engine(
 			url=url,
-			echo=echo
+			echo=echo,
 		)
 		
 		self._session_factory = async_sessionmaker(
@@ -24,4 +33,4 @@ class DatabaseHelper:
 		return self._session_factory
 
 
-db_helper = DatabaseHelper(url=settings.DATABASE_URL_async_sqlite, echo=settings.ECHO)  # type: ignore
+db_helper = DatabaseHelper(url=settings.DATABASE_URL_async_sqlite, echo=settings.ECHO)

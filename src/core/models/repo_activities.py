@@ -1,3 +1,6 @@
+"""
+	Модель для сущности активности конкретного репозитория в конкретный день.
+"""
 from datetime import datetime
 
 from sqlalchemy.orm import Mapped, mapped_column

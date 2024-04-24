@@ -1,6 +1,8 @@
+"""
+	Схемы для работы с сущностями активностей репозиториев GitHub.
+"""
 from datetime import date as date_type
 from typing import Optional
-from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -11,22 +13,20 @@ class RepoActivityBase(BaseModel):
 
 
 class RepoActivityDTO(RepoActivityBase):
-	"""DTO-класс для активности репозиториев GH"""
-	repo_id: Optional[str]  				# Уникальное id репозитория (UUID в строке)
-	date: date_type  						# Конкретная дата
-	commits: int  							# Количество коммитов за конкретный день
-	authors: list[str]  					# Список авторов, которые выполняли коммиты
+	"""DTO-класс для активности репозитория."""
+	repo_id: Optional[str]  					# Уникальное id репозитория (UUID в строке)
+	date: date_type  							# Конкретная дата
+	commits: int  								# Количество коммитов за конкретный день
+	authors: list[str]  						# Список авторов, которые выполняли коммиты
 
 	@staticmethod
-	def init_from_parsing_data(
+	def validate_from_parsing_data(
 			list_of_commits: list[dict],
 	) -> list:
 		"""
-		Преобразование результата парсинга к модели ДТО
-		
-		:param repo_id: уникальный идентификатор репозитория
-		:param list_of_commits: список всех коммитов (словарей, содержащих автора и дату каждого коммита)
-		:return: список объектов данной ДТО-модели
+		Преобразование результата парсинга данных к модели ДТО.
+		:param list_of_commits: Список всех коммитов (словарей, содержащих автора и дату каждого коммита).
+		:return: Список объектов данной ДТО-модели.
 		"""
 		
 		activities_list: list = []
@@ -56,7 +56,7 @@ class RepoActivityDTO(RepoActivityBase):
 	
 	
 class RepoActivityUpload(RepoActivityBase):
-	"""Кдасс для передачи по АПИ активности репозиториев GH"""
-	date: date_type  						# Конкретная дата
-	commits: int  							# Количество коммитов за конкретный день
-	authors: list[str]  					# Список авторов, которые выполняли коммиты
+	"""Кдасс для передачи по API активности репозиториев GH (без лишних полей)"""
+	date: date_type  							# Конкретная дата
+	commits: int  								# Количество коммитов за конкретный день
+	authors: list[str]  						# Список авторов, которые выполняли коммиты

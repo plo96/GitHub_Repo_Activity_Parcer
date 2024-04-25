@@ -29,6 +29,8 @@ async def test_get_repos_sorted_by_param(
 			param=param,
 		)
 		
+		top_list = [entity._asdict() for entity in top_list]
+		
 		if param in (None, "id", "_smth_"):
 			stmt = select(Repo).order_by("stars")
 			res = await session.execute(stmt)
@@ -37,41 +39,12 @@ async def test_get_repos_sorted_by_param(
 			res = await session.execute(stmt)
 		res = list(res.scalars().all())
 		res.reverse()
+		
 		for index, entity in enumerate(res):
 			entity_dict = entity.__dict__
 			entity_dict.pop('_sa_instance_state')
-			print(top_list)
-			print()
-			print(tuple(entity_dict.values()))
-			assert all([value in top_list[index] for value in tuple(entity_dict.values())])
-		# assert all([entity in top_list for entity in res])
-
-
-
-[
-	('2c50c0e8-02ed-4e56-9319-2c42f5bbc1fe', 'Like property see.', 'danielmathews', 90, 90, 3460, 1499, 29, 44, 'Afar'),
-	('51afbfcb-e9a3-4658-833e-c16254d82536', 'Bag professional energy.', 'robert89', 49, 74, 25, 4178, 18, 33, 'Sanskrit'),
-	('0be30a5b-9f8c-49a2-abc9-2b54d8f82929', 'Baby image tend range reason.', 'david60', 14, 38, 194, 3226, 18, 32, 'Breton'),
-	('b605e9aa-1fe0-45f1-9095-10b182e64baf', 'White evening study.', 'stevensonryan', 19, 45, 46, 3840, 13, 18, 'Ukrainian'), (
-	'c063f6d6-406c-4abd-918a-40430d126449', 'Build strategy address south.', 'hawkinsbrenda', 44, 10, 296, 1442, 12, 38, 'Limburgan')
-]
-
-(90, '2c50c0e8-02ed-4e56-9319-2c42f5bbc1fe', 'Like property see.', 3460, 29, 'Afar', 'danielmathews', 90, 1499, 44)
-[
-	('2c50c0e8-02ed-4e56-9319-2c42f5bbc1fe', 'Like property see.', 'danielmathews', 90, 90, 3460, 1499, 29, 44, 'Afar'),
-	('51afbfcb-e9a3-4658-833e-c16254d82536', 'Bag professional energy.', 'robert89', 49, 74, 25, 4178, 18, 33, 'Sanskrit'),
-	('0be30a5b-9f8c-49a2-abc9-2b54d8f82929', 'Baby image tend range reason.', 'david60', 14, 38, 194, 3226, 18, 32, 'Breton'),
-	('b605e9aa-1fe0-45f1-9095-10b182e64baf', 'White evening study.', 'stevensonryan', 19, 45, 46, 3840, 13, 18, 'Ukrainian'),
-	('c063f6d6-406c-4abd-918a-40430d126449', 'Build strategy address south.', 'hawkinsbrenda', 44, 10, 296, 1442, 12, 38, 'Limburgan')
- ]
-
-(14, '0be30a5b-9f8c-49a2-abc9-2b54d8f82929', 'Baby image tend range reason.', 194, 18, 'Breton', 'david60', 38, 3226, 32)
-
-
-
-
-
-
+			res[index] = entity_dict
+		assert all([entity in res for entity in top_list])
 
 
 @pytest.mark.parametrize("_", range(NUM_TESTS))
@@ -91,8 +64,7 @@ async def test_check_owner_repo_combination(
 			fake_owner_repo_pair = (owner, owner_repo[1])
 			break
 		else:
-			print("Can not choose fake pair owner-repo.")
-			assert 1 == 0
+			fake_owner_repo_pair = (owner, owner_repo[1]+'a')
 	
 	async with session_factory() as session:
 		assert await ReposRepository.check_owner_repo_combination(

@@ -9,7 +9,7 @@ from src.project.exceptions import NoRepoActivities, NoRepoOwnerCombination
 async def test_get_repo_activities(
 		some_repo_activities_added: None,
 		repos_url: str,
-		owners_repos_with_activities,
+		owners_repos_with_activities: list[tuple],
 		since_until: tuple[date, date],
 		async_client: AsyncClient,
 ):
@@ -22,10 +22,42 @@ async def test_get_repo_activities(
 		assert list(ans.keys()) == ['date', 'commits', 'authors']
 
 
+async def test_get_repo_activities_without_since(
+		some_repo_activities_added: None,
+		repos_url: str,
+		owners_repos_with_activities: list[tuple],
+		since_until: tuple[date, date],
+		async_client: AsyncClient,
+):
+	owner, repo = choice(owners_repos_with_activities)
+	_, until = since_until
+	result = await async_client.get(repos_url + f'{owner}/{repo}/activity?until={until}')
+	assert result.status_code == 200
+	for ans in result.json():
+		assert isinstance(ans, dict)
+		assert list(ans.keys()) == ['date', 'commits', 'authors']
+
+
+async def test_get_repo_activities_without_until(
+		some_repo_activities_added: None,
+		repos_url: str,
+		owners_repos_with_activities: list[tuple],
+		since_until: tuple[date, date],
+		async_client: AsyncClient,
+):
+	owner, repo = choice(owners_repos_with_activities)
+	since, _ = since_until
+	result = await async_client.get(repos_url + f'{owner}/{repo}/activity?since={since}')
+	assert result.status_code == 200
+	for ans in result.json():
+		assert isinstance(ans, dict)
+		assert list(ans.keys()) == ['date', 'commits', 'authors']
+
+
 async def test_get_repo_activities_bad_dates(
 		some_repo_activities_added: None,
 		repos_url: str,
-		owners_repos_with_activities,
+		owners_repos_with_activities: list[tuple],
 		since_until: tuple[date, date],
 		async_client: AsyncClient,
 ):
@@ -41,7 +73,7 @@ async def test_get_repo_activities_bad_dates(
 async def test_get_repo_activities_bad_fullname(
 		some_repo_activities_added: None,
 		repos_url: str,
-		owners_repos_with_activities,
+		owners_repos_with_activities: list[tuple],
 		since_until: tuple[date, date],
 		async_client: AsyncClient,
 ):
@@ -55,7 +87,7 @@ async def test_get_repo_activities_bad_fullname(
 async def test_get_repo_activities_bad_owner(
 		some_repo_activities_added: None,
 		repos_url: str,
-		owners_repos_with_activities,
+		owners_repos_with_activities: list[tuple],
 		since_until: tuple[date, date],
 		async_client: AsyncClient,
 ):

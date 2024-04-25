@@ -2,6 +2,7 @@
 	Роутер для описания возможностей внешнего взаимодействия с активностями репозаториев
 """
 from datetime import date
+from typing import Optional
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,8 +20,8 @@ router = APIRouter(tags=['Repos'], prefix="/repos")
 async def get_activity(
 		owner: str,
 		repo: str,
-		since: date,
-		until: date,
+		since: Optional[date] = None,
+		until: Optional[date] = None,
 		session: AsyncSession = Depends(get_session),
 ) -> list[RepoActivityUpload]:
 	"""

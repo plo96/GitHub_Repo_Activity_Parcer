@@ -29,7 +29,7 @@ class RepoActivitiesRepository:
 				 Пустой список если ничего не найдено.
 		"""
 		stmt = text(
-			f"""SELECT date, commits, authors FROM repo_activities
+			f"""SELECT repo_id, date, commits, authors FROM repo_activities
 			JOIN repos ON repo_activities.repo_id == repos.id
 			WHERE repos.owner == "{owner}"
 			AND repos.repo == "{repo}"
@@ -54,7 +54,7 @@ class RepoActivitiesRepository:
 		)
 		await session.execute(stmt)
 		await session.flush()
-		
+	
 	@staticmethod
 	async def add_activity(
 			session: AsyncSession,
@@ -68,8 +68,47 @@ class RepoActivitiesRepository:
 		"""
 		stmt = text(
 			f"""INSERT INTO repo_activities
-				VALUES {", ".join(f'"{value}"' for value in repo_activity_dict.values())} """
+				VALUES ({", ".join(f'"{value}"' for value in repo_activity_dict.values())}) """
 		)
 		await session.execute(stmt)
 		await session.flush()
 	
+	@staticmethod
+	async def get_max_activity_date(
+			session: AsyncSession,
+	) -> Row | None:
+		"""
+		Максимальная дата из всех записей по активностям репозиториев.
+		:param session: Сессия для доступа к БД.
+		:return: Row с одним значением времени в строке.
+				 None если в базе вообще нет данных по активностям репозиториев.
+		"""
+		stmt = text(
+			"""SELECT repo_activities.date
+			   FROM repo_activities
+			   ORDER BY repo_activities.date DESC
+			   LIMIT 1"""
+		)
+		res = await session.execute(stmt)
+		res = res.one_or_none()
+		return res
+	
+	@staticmethod
+	async def get_min_activity_date(
+			session: AsyncSession,
+	) -> Row | None:
+		"""
+		Минимальная дата из всех записей по активностям репозиториев.
+		:param session: Сессия для доступа к БД.
+		:return:Row с одним значением времени в строке.
+				None если в базе вообще нет данных по активностям репозиториев.
+		"""
+		stmt = text(
+			"""SELECT repo_activities.date
+			   FROM repo_activities
+			   ORDER BY repo_activities.date ASC
+			   LIMIT 1"""
+		)
+		res = await session.execute(stmt)
+		res = res.one_or_none()
+		return res

@@ -1,3 +1,4 @@
+from random import choice
 from datetime import date
 
 import pytest
@@ -34,7 +35,7 @@ def get_new_repo_activity(
 ) -> dict:
     """Фейковая история активности репозитория для случайного репозитория из набора"""
     return dict(
-        repo_id=fake.random.choice(list_of_repos_id),
+        repo_id=choice(list_of_repos_id),
         date=fake.date_time().date(),
         commits=fake.random.randint(1, 50),
         authors=', '.join([fake.user_name() for _ in range(fake.random.randint(1, 5))]),
@@ -45,6 +46,22 @@ def get_new_repo_activity(
 async def new_repo() -> dict:
     """Фикстура для возвращения словаря для фейкового репозитория"""
     return get_new_repo()
+
+
+@pytest.fixture
+async def new_repo_activity(
+        new_repo: dict,
+        session_factory: async_sessionmaker,
+) -> dict:
+    """Фикстура для возвращения словаря для фейковой активности репозитория"""
+    async with session_factory() as session:
+        stmt = insert(Repo).values(**new_repo).returning(Repo.id)
+        repo_id = await session.execute(stmt)
+        repo_id = repo_id.scalars().all()[0]
+        await session.flush()
+        await session.commit()
+    new_repo_activity = get_new_repo_activity(list_of_repos_id=[repo_id])
+    return new_repo_activity
 
 
 @pytest.fixture(scope='session')
@@ -61,7 +78,7 @@ async def owners_repos(
     async with (session_factory() as session):
         stmt = select(Repo.owner, Repo.repo)
         res = await session.execute(stmt)
-        owners_repos = [entity._tuple() for entity in res.all()]        # noqa
+        owners_repos = [entity._tuple() for entity in res.all()]  # noqa
         return owners_repos
 
 
@@ -85,7 +102,7 @@ async def owners_repos_with_activities(
             )
         )
         res = await session.execute(stmt)
-        owners_repos = [entity._tuple() for entity in res.all()]        # noqa
+        owners_repos = [entity._tuple() for entity in res.all()]  # noqa
         return owners_repos
 
 
@@ -115,8 +132,8 @@ async def some_repos_added(
             await session.execute(stmt)
         await session.flush()
         await session.commit()
-        
-        
+
+
 @pytest.fixture
 async def a_few_repos_added(
         clear_database: None,
@@ -152,7 +169,6 @@ async def some_repo_activities_added(
                     break
                 except IntegrityError:
                     print("Unique constraint failed, reload...")
-                    
+        
         await session.flush()
         await session.commit()
-     

@@ -1,7 +1,7 @@
 """
 	Сервис для осуществления бизнес-логики при работе с активностями репозиториев.
 """
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,8 +21,8 @@ class RepoActivitiesService:
 			session: AsyncSession,
 			owner: str,
 			repo: str,
-			since: date,
-			until: date,
+			since: date | None,
+			until: date | None,
 	) -> list[RepoActivityUpload]:
 		"""
 		Получение информации об активности в конкретном репозитории по дням за определённый промежуток времени.
@@ -35,6 +35,22 @@ class RepoActivitiesService:
 		:return: Список моделей с активностями данного репозитория по дням в пределах запрашиваемого периода.
 				 Вызов ошибки из класса CustomHTTPException в случае ошибок.
 		"""
+		if not since:
+			res = await RepoActivitiesRepository.get_min_activity_date(
+				session=session,
+			)
+			if not res:
+				raise NoRepoActivities
+			since = datetime.fromisoformat(res._tuple()[0])		# noqa
+		if not until:
+			res = await RepoActivitiesRepository.get_max_activity_date(
+				session=session,
+			)
+			if not res:
+				raise NoRepoActivities
+			until = datetime.fromisoformat(res._tuple()[0]) 		# noqa
+		
+		until = until + timedelta(1)		# Потому что SQL(по крайней мере sqlite) считает "date":00-00 > "date"
 		result = await RepoActivitiesRepository.get_repo_activities(
 			session=session,
 			owner=owner,
@@ -53,11 +69,12 @@ class RepoActivitiesService:
 			else:
 				raise NoRepoOwnerCombination
 		
-		result = [entity._asdict() for entity in result]			# noqa
-		
-		for entity in result:
-			entity["date"] = datetime.fromisoformat(entity["date"])
-			entity['authors'] = list(entity['authors'].split(", "))
+		for index, activity in enumerate(result):
+			activity = activity._asdict()				# noqa
+			activity.pop("repo_id")
+			activity["date"] = datetime.fromisoformat(activity["date"])
+			activity['authors'] = list(activity['authors'].split(", "))
+			result[index] = activity
 		
 		result = [RepoActivityUpload.model_validate(entity) for entity in result]
 		return result

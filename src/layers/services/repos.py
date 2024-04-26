@@ -45,10 +45,11 @@ class RepoService:
 	async def set_new_top_repos(
 			session: AsyncSession,
 			new_top_repos: list[RepoDTO],
-	) -> None:
+	) -> list[RepoDTO]:
 		"""
 		Обновление данных по топу репозиториев в БД.
 		Метод для вызова из периодической задачи.
+		Обновляет данные в списке репозиториев - добавляет аттрибуты 'position_prev' и 'id'.
 		:param session: Сессия для доступа к БД.
 		:param new_top_repos: Список с новым топом репозиториев GitHub, которые перезапишут имеющийся топ.
 		:return: None.
@@ -74,7 +75,8 @@ class RepoService:
 					session=session,
 					repo_dict=new_repo.model_dump(),
 				)
-
+		
+			return new_top_repos
 		except Exception as _ex:
 			print(_ex)
 			raise AddNewDataError

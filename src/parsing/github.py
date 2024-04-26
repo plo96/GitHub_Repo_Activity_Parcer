@@ -1,6 +1,7 @@
 """
     Класс для реализации парсинга GitHub с использованием его RestAPI.
 """
+from abc import ABC, abstractmethod
 from datetime import datetime
 
 import httpx
@@ -8,9 +9,38 @@ import httpx
 from src.core.schemas import RepoActivityDTO, RepoDTO
 from src.core.models.repos import LIMIT_TOP_REPOS_LIST
 from src.project.decorators import multiply_parsing_trying
+from src.project import settings
 
 
-class GithubParserRest:
+class GithubParser(ABC):
+	"""Базовый класс для реализации парсера GitHub."""
+	
+	@abstractmethod
+	async def parsing_top(
+			self,
+	) -> list[RepoDTO] | None:
+		"""
+		Парсинг топа репозиториев по звёздам с гитхаба.
+        :return: Список словарей с указанными в методе данными о репозиториях.
+                 None в случае неудачного запроса.
+		"""
+		...
+	
+	@abstractmethod
+	async def parsing_activities(
+			self,
+			repo: RepoDTO,
+	) -> list[RepoActivityDTO] | None:
+		"""
+		Парсинг активности одного репозитория GitHub.
+        :param repo: Репозиторий для которого мы ищем активности.
+        :return: Список ДТО-схем для активности репозитория.
+		"""
+		...
+
+
+class GithubParserRest(GithubParser):
+	"""Класс для реализации парсинга GitHub через его RestAPI."""
 	
 	def __init__(self, github_token: str = None):
 		"""
@@ -21,9 +51,11 @@ class GithubParserRest:
 		self.headers = {'Authorization': f'token {self.github_token}'} if self.github_token else {}
 	
 	@multiply_parsing_trying
-	async def parsing_top(self) -> list[RepoDTO] | None:
+	async def parsing_top(
+			self,
+	) -> list[RepoDTO] | None:
 		"""
-        Парсинг топа репозиториев по звёздам с гитхаба.
+        Реализация парсинга топа репозиториев через RestAPI.
         :return: Список словарей с указанными в методе данными о репозиториях.
                  None в случае неудачного запроса.
         """
@@ -69,9 +101,12 @@ class GithubParserRest:
 			return
 	
 	@multiply_parsing_trying
-	async def parsing_activities(self, repo: RepoDTO) -> list[RepoActivityDTO] | None:
+	async def parsing_activities(
+			self,
+			repo: RepoDTO,
+	) -> list[RepoActivityDTO] | None:
 		"""
-        Парсинг активности одного репозитория GitHub.
+        Парсинг активности одного репозитория GitHub через RestAPI.
         :param repo: Репозиторий для которого мы ищем активности.
         :return: Список ДТО-схем для активности репозитория.
         """
@@ -104,3 +139,6 @@ class GithubParserRest:
 		except Exception as _ex:
 			print(_ex)
 			return
+
+
+gh_parser = GithubParserRest(settings.API_KEY)

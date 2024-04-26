@@ -6,9 +6,7 @@
     - Настройка и подключение middleware;
     - Запуск приложения через uvicorn.
 """
-import asyncio
 from contextlib import asynccontextmanager
-from datetime import datetime
 from time import time
 
 from fastapi import FastAPI, Request
@@ -16,34 +14,14 @@ import uvicorn
 
 from src.project.decorators import router_exceptions_processing
 from src.layers.routers import router
-# from src.schedule import schedule_parsing
-
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
-
-async def init_scheduler():
-    # scheduler = BackgroundScheduler()
-    # scheduler.add_job(some_task)
-    # scheduler.start()
-    async_scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
-    await some_task()
-    async_scheduler.add_job(some_task, trigger="interval", days=1)
-    async_scheduler.start()
-
-
-async def some_task():
-    print('hi start')
-    await asyncio.sleep(5)
-    print('hi stop')
+from src.schedule import init_scheduler
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):  # noqa
+async def lifespan(app: FastAPI):       # noqa
     """'Обертка' для реализации событий до и после запуска приложения"""
     print('Server starts')
     await init_scheduler()
-    # await schedule_parsing()
     yield
     print('Server stops')
 

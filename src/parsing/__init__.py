@@ -2,7 +2,8 @@
 	Модуль для реализации методов парсинга
 """
 __all__ = (
-	"github",
+	"GithubParser",
+	"gh_parser",
 )
 
-from . import github
+from .github import GithubParser, gh_parser

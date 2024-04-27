@@ -8,16 +8,20 @@ from pydantic import BaseModel
 
 
 class RepoActivityBase(BaseModel):
-	"""Базовый класс для активности репозиториев GH"""
+	"""Базовый класс для активности репозиториев GH."""
 	pass
 
 
-class RepoActivityDTO(RepoActivityBase):
-	"""DTO-класс для активности репозитория."""
-	repo_id: Optional[str]  					# Уникальное id репозитория (UUID в строке)
+class RepoActivityParsing(RepoActivityBase):
+	"""Результаты парсинга активности репозитория GitHub."""
 	date: date_type  							# Конкретная дата
 	commits: int  								# Количество коммитов за конкретный день
 	authors: list[str]  						# Список авторов, которые выполняли коммиты
+	
+
+class RepoActivityDTO(RepoActivityParsing):
+	"""DTO-класс для активности репозитория."""
+	repo_id: str 			 					# Уникальное id репозитория (UUID в строке)
 
 	@staticmethod
 	def validate_from_parsing_data(

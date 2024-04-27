@@ -67,8 +67,10 @@ class RepoActivitiesRepository:
 		:return: None.
 		"""
 		stmt = text(
-			f"""INSERT INTO repo_activities
-				VALUES ({", ".join(f'"{value}"' for value in repo_activity_dict.values())}) """
+			f"""INSERT INTO
+			repo_activities ({", ".join(key for key in repo_activity_dict.keys())})
+			VALUES
+			({", ".join(f'"{value}"' for value in repo_activity_dict.values())}) """
 		)
 		await session.execute(stmt)
 		await session.flush()

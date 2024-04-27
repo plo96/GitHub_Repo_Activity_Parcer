@@ -6,7 +6,7 @@ from datetime import datetime
 
 import httpx
 
-from src.core.schemas import RepoActivityDTO, RepoDTO
+from src.core.schemas import RepoActivityParsing, RepoParsing
 from src.core.models.repos import LIMIT_TOP_REPOS_LIST
 from src.project.decorators import multiply_parsing_trying
 from src.project import settings
@@ -18,7 +18,7 @@ class GithubParser(ABC):
 	@abstractmethod
 	async def parsing_top(
 			self,
-	) -> list[RepoDTO] | None:
+	) -> list[RepoParsing] | None:
 		"""
 		Парсинг топа репозиториев по звёздам с гитхаба.
         :return: Список словарей с указанными в методе данными о репозиториях.
@@ -29,8 +29,8 @@ class GithubParser(ABC):
 	@abstractmethod
 	async def parsing_activities(
 			self,
-			repo: RepoDTO,
-	) -> list[RepoActivityDTO] | None:
+			repo: RepoParsing,
+	) -> list[RepoActivityParsing] | None:
 		"""
 		Парсинг активности одного репозитория GitHub.
         :param repo: Репозиторий для которого мы ищем активности.
@@ -53,7 +53,7 @@ class GithubParserRest(GithubParser):
 	@multiply_parsing_trying
 	async def parsing_top(
 			self,
-	) -> list[RepoDTO] | None:
+	) -> list[RepoParsing] | None:
 		"""
         Реализация парсинга топа репозиториев через RestAPI.
         :return: Список словарей с указанными в методе данными о репозиториях.
@@ -82,8 +82,7 @@ class GithubParserRest(GithubParser):
 			
 			for index, repo in enumerate(response_data):
 				new_top_repos.append(
-					RepoDTO(
-						id=None,
+					RepoParsing(
 						repo=repo.get("full_name"),
 						owner=repo.get("owner").get("login"),
 						stars=repo.get("stargazers_count"),
@@ -92,7 +91,6 @@ class GithubParserRest(GithubParser):
 						open_issues=repo.get("open_issues"),
 						language=repo.get("language"),
 						position_cur=index,
-						position_prev=None,
 					)
 				)
 			return new_top_repos
@@ -103,8 +101,8 @@ class GithubParserRest(GithubParser):
 	@multiply_parsing_trying
 	async def parsing_activities(
 			self,
-			repo: RepoDTO,
-	) -> list[RepoActivityDTO] | None:
+			repo: RepoParsing,
+	) -> list[RepoActivityParsing] | None:
 		"""
         Парсинг активности одного репозитория GitHub через RestAPI.
         :param repo: Репозиторий для которого мы ищем активности.
@@ -131,7 +129,7 @@ class GithubParserRest(GithubParser):
 				)
 				list_of_commits.append(commit_dict)
 			
-			repo_activities = RepoActivityDTO.validate_from_parsing_data(
+			repo_activities = RepoActivityParsing.validate_from_parsing_data(
 				list_of_commits=list_of_commits,
 			)
 			

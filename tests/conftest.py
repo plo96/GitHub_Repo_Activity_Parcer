@@ -39,8 +39,8 @@ async def prepare_database():
     async with fake_engine.begin() as conn:
         await conn.run_sync(metadata.create_all)
     yield
-    async with fake_engine.begin() as conn:
-        await conn.run_sync(metadata.drop_all)
+    # async with fake_engine.begin() as conn:
+    #     await conn.run_sync(metadata.drop_all)
 
 
 @pytest.fixture(scope='session')
@@ -54,7 +54,7 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
         yield async_client
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 async def session_factory() -> async_sessionmaker:
     session_factory = get_fake_session_factory()
     return session_factory

@@ -14,7 +14,6 @@ class RepoActivity(Base):
 	__tablename__ = "repo_activities"
 	repo_id: Mapped[str] = mapped_column(  		# уникальный id репозитория
 		String,
-		ForeignKey("repos.id"),
 		primary_key=True,
 	)
 	date: Mapped[datetime] = mapped_column(		# Конкретная дата

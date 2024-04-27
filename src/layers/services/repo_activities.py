@@ -69,15 +69,15 @@ class RepoActivitiesService:
 			else:
 				raise NoRepoOwnerCombination
 		
-		for index, activity in enumerate(result):
+		repo_activities_upload: list[RepoActivityUpload] = []
+		for activity in result:
 			activity = activity._asdict()				# noqa
 			activity.pop("repo_id")
-			activity["date"] = datetime.fromisoformat(activity["date"])
-			activity['authors'] = list(activity['authors'].split(", "))
-			result[index] = activity
+			activity.__setitem__("date", datetime.fromisoformat(activity["date"]))
+			activity.__setitem__("authors",  list(activity['authors'].split(", ")))
+			repo_activities_upload.append(RepoActivityUpload.model_validate(activity))
 		
-		result = [RepoActivityUpload.model_validate(entity) for entity in result]
-		return result
+		return repo_activities_upload
 	
 	@staticmethod
 	async def set_new_repo_activities(
@@ -95,7 +95,7 @@ class RepoActivitiesService:
 		
 		try:
 			await RepoActivitiesRepository.delete_all_activities(
-				session=session
+				session=session,
 			)
 			
 			for repo_activities in new_repos_activities:

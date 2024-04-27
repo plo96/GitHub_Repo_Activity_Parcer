@@ -1,4 +1,3 @@
-from random import choice
 from datetime import date
 
 import pytest
@@ -15,7 +14,7 @@ fake = Faker()
 
 
 def get_new_repo() -> dict:
-    """Фейковый репозиторий для заполнения базы данных"""
+    """Фейковый репозиторий для заполнения базы данных."""
     return dict(
         id=get_str_uuid(),
         repo=fake.text(30),
@@ -33,9 +32,9 @@ def get_new_repo() -> dict:
 def get_new_repo_activity(
         list_of_repos_id: list,
 ) -> dict:
-    """Фейковая история активности репозитория для случайного репозитория из набора"""
+    """Фейковая история активности репозитория для случайного репозитория из набора."""
     return dict(
-        repo_id=choice(list_of_repos_id),
+        repo_id=fake.random.choice(list_of_repos_id),
         date=fake.date_time().date(),
         commits=fake.random.randint(1, 50),
         authors=', '.join([fake.user_name() for _ in range(fake.random.randint(1, 5))]),
@@ -44,7 +43,7 @@ def get_new_repo_activity(
 
 @pytest.fixture
 async def new_repo() -> dict:
-    """Фикстура для возвращения словаря для фейкового репозитория"""
+    """Фикстура для возвращения словаря для фейкового репозитория."""
     return get_new_repo()
 
 
@@ -53,7 +52,7 @@ async def new_repo_activity(
         new_repo: dict,
         session_factory: async_sessionmaker,
 ) -> dict:
-    """Фикстура для возвращения словаря для фейковой активности репозитория"""
+    """Фикстура для возвращения словаря для фейковой активности репозитория."""
     async with session_factory() as session:
         stmt = insert(Repo).values(**new_repo).returning(Repo.id)
         repo_id = await session.execute(stmt)
@@ -66,7 +65,7 @@ async def new_repo_activity(
 
 @pytest.fixture(scope='session')
 def repos_url() -> str:
-    """URL для запросов по репозиториям"""
+    """URL для запросов по репозиториям."""
     return '/api/repos/'
 
 
@@ -74,7 +73,7 @@ def repos_url() -> str:
 async def owners_repos(
         session_factory: async_sessionmaker,
 ) -> list[tuple]:
-    """Список кортежей с парами владелец/репозиторий"""
+    """Список кортежей с парами владелец/репозиторий."""
     async with (session_factory() as session):
         stmt = select(Repo.owner, Repo.repo)
         res = await session.execute(stmt)
@@ -86,7 +85,7 @@ async def owners_repos(
 async def owners_repos_with_activities(
         session_factory: async_sessionmaker,
 ) -> list[tuple]:
-    """Список кортежей с парами владелец/репозиторий для репозиториев с изменениями"""
+    """Список кортежей с парами владелец/репозиторий для репозиториев с изменениями."""
     async with (session_factory() as session):
         stmt = (
             select(
@@ -110,7 +109,7 @@ async def owners_repos_with_activities(
 async def since_until(
         session_factory: async_sessionmaker,
 ) -> tuple[date, date]:
-    """Кортеж с минимальной и максимальной датами для репозиториев с изменениями"""
+    """Кортеж с минимальной и максимальной датами для репозиториев с изменениями."""
     async with session_factory() as session:
         stmt = select(RepoActivity.date).order_by(RepoActivity.date)
         result = await session.execute(stmt)
@@ -124,7 +123,7 @@ async def some_repos_added(
         clear_database: None,
         session_factory: async_sessionmaker,
 ) -> None:
-    """Добавляет в базу данных необходимое число фейковых репозиториев"""
+    """Добавляет в базу данных необходимое число фейковых репозиториев."""
     new_repos = [get_new_repo() for _ in range(LIMIT_TOP_REPOS_LIST)]
     async with session_factory() as session:
         for new_repo in new_repos:
@@ -139,7 +138,7 @@ async def a_few_repos_added(
         clear_database: None,
         session_factory: async_sessionmaker,
 ) -> None:
-    """Добавляет в базу данных меньшее, чем требуется, число фейковых репозиториев"""
+    """Добавляет в базу данных меньшее, чем требуется, число фейковых репозиториев."""
     new_repos = [get_new_repo() for _ in range(LIMIT_TOP_REPOS_LIST - 1)]
     async with session_factory() as session:
         for new_repo in new_repos:
@@ -154,7 +153,7 @@ async def some_repo_activities_added(
         some_repos_added: None,
         session_factory: async_sessionmaker,
 ) -> None:
-    """Добавляет в базу данных фейковую историю изменений для фейковых репозиториев"""
+    """Добавляет в базу данных фейковую историю изменений для фейковых репозиториев."""
     
     async with session_factory() as session:
         stmt = select(Repo.id)

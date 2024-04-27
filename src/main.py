@@ -14,14 +14,14 @@ import uvicorn
 
 from src.project.decorators import router_exceptions_processing
 from src.layers.routers import router
-from src.schedule import init_scheduler
+# from src.schedule import init_scheduler
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):       # noqa
     """'Обертка' для реализации событий до и после запуска приложения"""
     print('Server starts')
-    await init_scheduler()
+    # await init_scheduler()
     yield
     print('Server stops')
 

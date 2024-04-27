@@ -5,8 +5,8 @@
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .base import Base
-from .get_default import get_str_uuid
+from src.core.models.base import Base
+from src.core.models.get_default import get_str_uuid
 
 DEFAULT_SORT_PARAM = "stars"				# Параметр по умолчанию для сортировки репозиториев при чтении из БД
 LIMIT_TOP_REPOS_LIST = 5					# Число репозиториев в топе (БД)
@@ -18,7 +18,6 @@ class Repo(Base):
 	id: Mapped[str] = mapped_column(		# уникальный id репозитория
 		String,
 		primary_key=True,
-		default=get_str_uuid,
 	)
 	repo: Mapped[str] 						# full_name репозитория
 	owner: Mapped[str] 						# владелец репозитория

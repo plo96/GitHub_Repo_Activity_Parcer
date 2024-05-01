@@ -22,7 +22,7 @@ class RepoService:
 	@staticmethod
 	async def get_top_repos(
 			session: AsyncSession,
-			param: Optional[str],
+			param: Optional[str] = None,
 	) -> list[RepoUpload]:
 		"""
 		Получения топа репозиториев из БД.
@@ -36,9 +36,16 @@ class RepoService:
 		
 		if len(result) < LIMIT_TOP_REPOS_LIST:
 			raise TooFewRepos(limit=LIMIT_TOP_REPOS_LIST, current_len=len(result))
-		
-		result = [entity._asdict() for entity in result]										# noqa
-		return [RepoUpload.model_validate(entity) for entity in result]
+
+		repos_dict: list = []
+		for entity in result:
+			entity_dict = entity._asdict()				# noqa
+			for key, value in entity_dict.items():
+				if value == "None":
+					entity_dict[key] = None
+			repos_dict.append(entity_dict)
+
+		return [RepoUpload.model_validate(entity_dict) for entity_dict in repos_dict]
 	
 	@staticmethod
 	async def set_new_top_repos(

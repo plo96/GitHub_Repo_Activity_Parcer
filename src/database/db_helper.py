@@ -14,13 +14,12 @@ class DatabaseHelper:
 		Инициализация DatabaseHelper(на основе SQLAlchemy).
 		Создание движка подключения и фабрики сессий на основе этого движка.
 		:param url: Адресс для подключения к базе данных.
-		:param echo: Вывод отладочных сообщений в консоль (True/False)
+		:param echo: Вывод отладочных сообщений в консоль (True/False).
 		"""
 		self._engine = create_async_engine(
 			url=url,
 			echo=echo,
 		)
-		
 		self._session_factory = async_sessionmaker(
 			bind=self._engine,
 			autoflush=False,
@@ -33,4 +32,5 @@ class DatabaseHelper:
 		return self._session_factory
 
 
+# db_helper = DatabaseHelper(url=settings.DATABASE_URL_ASYNCPG, echo=settings.ECHO)
 db_helper = DatabaseHelper(url=settings.DATABASE_URL_async_sqlite, echo=settings.ECHO)

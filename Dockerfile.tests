@@ -1,0 +1,29 @@
+# sudo docker build -t git_top_app_tests -f Dockerfile.tests .
+# sudo docker run --rm git_top_app_tests
+
+FROM python:3.10
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /app
+
+COPY requirements.txt requirements.txt
+
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
+
+# COPY alembic.ini alembic.ini
+
+# COPY ./migrations/ migrations/
+
+# RUN alembic upgrade head
+
+COPY src src
+
+COPY tests tests
+
+COPY pyproject.toml pyproject.toml
+
+COPY .env .env
+
+CMD python -m pytest -s

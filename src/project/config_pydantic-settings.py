@@ -5,22 +5,17 @@
     Дополнительные общие параметры для приложения задаются через свойства (@property).
 """
 from pathlib import Path
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 HOME_DIR = Path(__file__).parent.parent.parent
 
 
 class Settings(BaseSettings):
     """Класс, содержащий основные настройки для приложения."""
-    APP_HOST_PORT: int
-
-    DB_PORT: int
-    DB_HOST: str
-    DB_NAME: str
-    DB_USER: str
-    DB_PASSWORD: str
+    model_config = SettingsConfigDict(env_file=f"{HOME_DIR}/.env")
 
     SQLITE_NAME: str
+    TEST_SQLITE_NAME: str
 
     ECHO: bool
     TEST_ECHO: bool
@@ -28,10 +23,6 @@ class Settings(BaseSettings):
     API_KEY: str
 
     FORCED_PREVENTIVES_PARSING: bool
-
-    @property
-    def DATABASE_URL_ASYNCPG(self) -> str:
-        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     @property
     def DATABASE_URL_async_sqlite(self) -> str:
@@ -44,9 +35,19 @@ class Settings(BaseSettings):
         return f"sqlite:///{HOME_DIR}/src/database/sqlite_db/{self.SQLITE_NAME}"
 
     @property
+    def TEST_DATABASE_URL_async_sqlite(self) -> str:
+        """URL для подключения к тестовой БД (aiosqlite)."""
+        return f"sqlite+aiosqlite:///{HOME_DIR}/src/database/sqlite_db/{self.TEST_SQLITE_NAME}"
+
+    @property
     def HOME_DIR(self) -> str:
         """Корневая директория проекта."""
         return str(HOME_DIR.absolute())
 
+    @property
+    def MAX_PARSING_TRYING(self) -> int:
+        """Максимальное число попыток в случае неудачи при парсинге."""
+        return 5
 
-settings = Settings()               # type: ignore
+
+settings = Settings()  # type: ignore

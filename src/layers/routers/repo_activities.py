@@ -25,14 +25,15 @@ async def get_activity(
 		session: AsyncSession = Depends(get_session),
 ) -> list[RepoActivityUpload]:
 	"""
-	Вовзращение информации об активностях конкретного репозитория за некоторый промежуток времени.
-	:param owner: Владелец репозитория на GitHub.
-	:param repo: full_name репозитория на GitHub.
-	:param since: Начальная точка по времени для выборки.
-	:param until: Конечная точка по времени для выборки.
-	:param session: Сессия для доступа к БД. Получение из зависимостей.
+	Вовзращение информации об активностях конкретного репозитория за некоторый промежуток времени. \n
+	:param owner: Владелец репозитория на GitHub. \n
+	:param repo: name репозитория на GitHub. \n
+	:param since: Начальная точка по времени для выборки (YYYY-MM-DD). \n
+	:param until: Конечная точка по времени для выборки (YYYY-MM-DD). \n
+	:param session: Сессия для доступа к БД. Получение из зависимостей. \n
 	:return: Список ативности в репозиториях по дням за указанный период.
 	"""
+	# repo = f"{owner}/{repo}"
 	return await RepoActivitiesService.get_activity(
 		session=session,
 		owner=owner,

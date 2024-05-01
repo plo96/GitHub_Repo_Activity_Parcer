@@ -5,7 +5,7 @@ __all__ = (
 	"init_scheduler",
 )
 
-# from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from .schedule_parser import schedule_parser
 
@@ -16,7 +16,7 @@ async def init_scheduler() -> None:
 	Предварительный вызов нужных процессов во время первоначального запуска расписания.
 	:return: None
 	"""
-	# async_scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
-	await schedule_parser.full_task_processing()
-	# async_scheduler.add_job(schedule_parser.full_task_processing, trigger="interval", days=1)
-	# async_scheduler.start()
+	async_scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
+	await schedule_parser.preventious_full_task_processing()
+	async_scheduler.add_job(schedule_parser.full_task_processing, trigger="interval", days=1)
+	async_scheduler.start()

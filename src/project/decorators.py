@@ -6,11 +6,13 @@ from asyncio import sleep as asleep
 
 from fastapi import HTTPException
 
-from .exceptions import CustomHTTPException, status, ParsingNewDataError
-from .config import settings
+from src.project.exceptions import CustomHTTPException, status, ParsingNewDataError
+from src.project.config import settings
+
 
 def router_exceptions_processing(func):
     """Обработка исключений для роутеров."""
+
     @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
@@ -30,17 +32,23 @@ def router_exceptions_processing(func):
     return wrapper
 
 
-def multiply_parsing_trying(func):
-    """Автоматическое повторение попытки парсинга в случае неудачи при парсинге или записи в БД."""
-    @wraps(func)
-    async def wrapper(*args, **kwargs):
-        for _ in range(settings.MAX_PARSING_TRYING):
-            result = await func(*args, **kwargs)
-            if result:
-                break
-            await asleep(5)
-        else:
-            raise ParsingNewDataError
-        return result
-    
-    return wrapper
+def multiply_parsing_trying(max_trying: int):
+    """
+    Автоматическое повторение попытки парсинга в случае неудачи при парсинге или записи в БД.
+    :param max_trying: Максимальное число попыток.
+    """
+    def outer_wrapper(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            for _ in range(max_trying):
+                result = await func(*args, **kwargs)
+                if result:
+                    break
+                await asleep(5)
+            else:
+                raise ParsingNewDataError
+            return result
+
+        return wrapper
+
+    return outer_wrapper

@@ -1,6 +1,3 @@
-# sudo docker build -t git_top_app -f Dockerfile.app .
-# sudo docker run --rm -p 8000:8000 git_top_app
-
 FROM python:3.10
 
 ENV PYTHONDONTWRITEBYTECODE 1

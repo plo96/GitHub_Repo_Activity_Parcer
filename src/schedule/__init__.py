@@ -17,6 +17,6 @@ async def init_scheduler() -> None:
 	:return: None
 	"""
 	async_scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
-	await schedule_parser.preventious_full_task_processing()
+	await schedule_parser.full_task_processing()
 	async_scheduler.add_job(schedule_parser.full_task_processing, trigger="interval", days=1)
 	async_scheduler.start()

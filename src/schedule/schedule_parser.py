@@ -5,15 +5,13 @@ from asyncio import sleep as asleep
 
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from src.project.exceptions import CustomException, TooFewRepos
-from src.project.config import settings
+from src.project.exceptions import CustomException
 from src.core.dependencies import get_actual_session_factory
 from src.core.schemas import RepoDTO, RepoActivityDTO, RepoParsing, RepoActivityParsing
 from src.parsing import GithubParser, gh_parser
 from src.layers.services import RepoService, RepoActivitiesService
 
 DEFAULT_PAUSE_VALUE = 2  # Время паузы между запросами, секунды
-FORCED_PREVENTIVES_PARSING = settings.FORCED_PREVENTIVES_PARSING  # Необходимость первоначального парсинга GitHub
 
 
 class ScheduleParser:
@@ -22,7 +20,6 @@ class ScheduleParser:
             parser: GithubParser,
             session_factory: async_sessionmaker,
             pause_value: int = DEFAULT_PAUSE_VALUE,
-            forced_preventives_parsing: bool = FORCED_PREVENTIVES_PARSING,
     ):
         """
         Инициализация объекта парсинга GitHub по расписанию.
@@ -35,23 +32,6 @@ class ScheduleParser:
         self._gh_parser = parser
         self._session_factory = session_factory
         self._pause_value = pause_value
-        self._forced_preventives_parsing = forced_preventives_parsing
-
-    async def preventious_full_task_processing(self) -> None:
-        """
-        Запуск процесса парсинга GitHub если в базе данных недостаточно информации по репозиториям.
-        :return: None.
-        """
-        if self._forced_preventives_parsing:
-            await self.full_task_processing()
-        else:
-            try:
-                async with self._session_factory() as session:
-                    await RepoService.get_top_repos(
-                        session=session,
-                    )
-            except TooFewRepos:
-                await self.full_task_processing()
 
     async def full_task_processing(self) -> None:
         """
@@ -61,6 +41,7 @@ class ScheduleParser:
         print("Start parsing.")
         new_top_repos, new_repos_activities = await self.parsing()
         print('Parsing is done.')
+        print("Start DB changes.")
         await self.update_db(new_top_repos, new_repos_activities)
         print('DB changes are committed.')
 

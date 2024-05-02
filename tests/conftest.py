@@ -16,7 +16,7 @@ from src.main import app
 
 NUM_TESTS = 3
 
-fake_engine = create_async_engine(url=settings.TEST_DATABASE_URL_async_sqlite,
+fake_engine = create_async_engine(url=settings.DATABASE_URL_PSYCOPG_ASYNC_TEST,
                                   poolclass=NullPool,
                                   echo=settings.TEST_ECHO)
 fake_session_factory = async_sessionmaker(bind=fake_engine,
@@ -39,8 +39,8 @@ async def prepare_database():
     async with fake_engine.begin() as conn:
         await conn.run_sync(metadata.create_all)
     yield
-    # async with fake_engine.begin() as conn:
-    #     await conn.run_sync(metadata.drop_all)
+    async with fake_engine.begin() as conn:
+        await conn.run_sync(metadata.drop_all)
 
 
 @pytest.fixture(scope='session')
@@ -66,3 +66,4 @@ async def clear_database() -> None:
         await conn.run_sync(metadata.drop_all)
     async with fake_engine.begin() as conn:
         await conn.run_sync(metadata.create_all)
+        

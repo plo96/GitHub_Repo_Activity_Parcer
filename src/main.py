@@ -23,20 +23,20 @@ from src.project.config import settings
 async def lifespan(app: FastAPI):       # noqa
     """'Обертка' для реализации событий до и после запуска приложения"""
     print('Server starts')
-
-    print('Before alembic')
+    
+    # Апдейт таблиц, если есть отличия текущего состояния от head
     try:
-        # Апдейт таблиц, если есть отличия текущего состояния от head
         alembic_cfg = f"{settings.HOME_DIR}/alembic.ini"
         config = Config(alembic_cfg)
         command.upgrade(config, "head")
     except Exception as _ex:
         print(_ex)
-    print('After alembic')
+
     # Установка заданий по расписанию
     await init_scheduler()
-    print('After scheduler')
+
     yield
+
     print('Server stops')
 
 
@@ -52,7 +52,7 @@ app.include_router(router, prefix="/api")
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     """
-    Настройка middleware.
+    Настройка middleware для возврата времени обработки запроса от сервера.
     :param request: Параметры входящего запроса.
     :param call_next: Функция формирования ответа.
     :return: Ответ от сервера.

@@ -75,7 +75,6 @@ class RepoService:
 				new_repo_dto_dict.__setitem__("position_prev", position_prev)
 				new_repo_dto_dict.__setitem__("id", get_str_uuid())
 				new_top_repos_dto.append(RepoDTO.model_validate(new_repo_dto_dict))
-				
 			await ReposRepository.delete_all(session=session)
 			
 			for new_repo in new_top_repos_dto:

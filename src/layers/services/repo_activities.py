@@ -102,6 +102,7 @@ class RepoActivitiesService:
                 for repo_activity in repo_activities:
                     repo_activity_dict = repo_activity.model_dump()
                     repo_activity_dict["authors"] = ", ".join(author for author in repo_activity_dict["authors"])
+                    repo_activity_dict["authors"] = repo_activity_dict["authors"].replace("'", "''")
                     await RepoActivitiesRepository.add_activity(
                         session=session,
                         repo_activity_dict=repo_activity_dict,

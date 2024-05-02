@@ -26,7 +26,7 @@ services:
     ports:
       - ${DB_PORT}:5432
     volumes:
-      - .postgres_database:/var/lib/postgres/data
+      - ./postgres_data:/var/lib/postgresql/data
     restart: always
     env_file:
       - ./.env

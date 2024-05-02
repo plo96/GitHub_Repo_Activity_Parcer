@@ -30,11 +30,11 @@ class RepoActivitiesRepository:
 		"""
         stmt = text(
             f"""SELECT repo_id, date, commits, authors FROM repo_activities
-			JOIN repos ON repo_activities.repo_id == repos.id
-			WHERE repos.owner == "{owner}"
-			AND repos.repo == "{repo}"
-			AND repo_activities.date >= DATE("{since}")
-			AND repo_activities.date <= DATE("{until}")
+			JOIN repos ON repo_activities.repo_id = repos.id
+			WHERE repos.owner = '{owner}'
+			AND repos.repo = '{repo}'
+			AND repo_activities.date >= DATE('{since}')
+			AND repo_activities.date <= DATE('{until}')
 			"""
         )
         res = await session.execute(stmt)
@@ -70,7 +70,7 @@ class RepoActivitiesRepository:
             f"""INSERT INTO
 			repo_activities ({", ".join(key for key in repo_activity_dict.keys())})
 			VALUES
-			({", ".join(f'"{value}"' for value in repo_activity_dict.values())}) """
+			({", ".join(f"'{value}'" for value in repo_activity_dict.values())}) """
         )
         await session.execute(stmt)
         await session.flush()

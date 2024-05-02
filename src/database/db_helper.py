@@ -32,5 +32,4 @@ class DatabaseHelper:
 		return self._session_factory
 
 
-# db_helper = DatabaseHelper(url=settings.DATABASE_URL_ASYNCPG, echo=settings.ECHO)
-db_helper = DatabaseHelper(url=settings.DATABASE_URL_async_sqlite, echo=settings.ECHO)
+db_helper = DatabaseHelper(url=settings.DATABASE_URL_PSYCOPG_ASYNC, echo=settings.ECHO)

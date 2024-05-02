@@ -12,8 +12,7 @@ from src.project import settings
 # access to the values within the .ini file in use.
 config = context.config
 
-# config.set_main_option('sqlalchemy.url', settings.DATABASE_URL_ASYNCPG + "?async_fallback=True")
-config.set_main_option('sqlalchemy.url', settings.DATABASE_URL_sqlite)
+config.set_main_option('sqlalchemy.url', settings.DATABASE_URL_PSYCOPG_SYNC)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

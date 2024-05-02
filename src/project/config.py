@@ -12,7 +12,7 @@ HOME_DIR = Path(__file__).parent.parent.parent
 
 class Settings(BaseSettings):
     """Класс, содержащий основные настройки для приложения."""
-    APP_HOST_PORT: int
+    APP_HOST_PORT: int = 8000
 
     DB_PORT: int
     DB_HOST: str
@@ -25,13 +25,21 @@ class Settings(BaseSettings):
     ECHO: bool
     TEST_ECHO: bool
 
-    API_KEY: str
+    API_KEY: str = ""
 
     FORCED_PREVENTIVES_PARSING: bool
 
     @property
     def DATABASE_URL_ASYNCPG(self) -> str:
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+    @property
+    def DATABASE_URL_PSYCOPG_SYNC(self) -> str:
+        return f"postgresql+psycopg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+    @property
+    def DATABASE_URL_PSYCOPG_ASYNC(self) -> str:
+        return f"postgresql+psycopg_async://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     @property
     def DATABASE_URL_async_sqlite(self) -> str:

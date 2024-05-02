@@ -24,14 +24,18 @@ async def lifespan(app: FastAPI):       # noqa
     """'Обертка' для реализации событий до и после запуска приложения"""
     print('Server starts')
 
-    # Апдейт таблиц, если есть отличия текущего состояния от head
-    alembic_cfg = f"{settings.HOME_DIR}/alembic.ini"
-    config = Config(alembic_cfg)
-    command.upgrade(config, "head")
-
+    print('Before alembic')
+    try:
+        # Апдейт таблиц, если есть отличия текущего состояния от head
+        alembic_cfg = f"{settings.HOME_DIR}/alembic.ini"
+        config = Config(alembic_cfg)
+        command.upgrade(config, "head")
+    except Exception as _ex:
+        print(_ex)
+    print('After alembic')
     # Установка заданий по расписанию
     await init_scheduler()
-
+    print('After scheduler')
     yield
     print('Server stops')
 

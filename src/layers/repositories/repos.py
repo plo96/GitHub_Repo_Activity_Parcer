@@ -51,7 +51,7 @@ class ReposRepository:
 		"""
 		stmt = text(
 			f"""SELECT * FROM repos
-				WHERE repos.owner == "{owner}" AND repos.repo == "{repo}" """
+				WHERE owner = '{owner}' AND repo = '{repo}' """
 		)
 		res = await session.execute(stmt)
 		return bool(res.all())
@@ -76,7 +76,7 @@ class ReposRepository:
 			return None
 		stmt = text(
 			f"""SELECT {param}	FROM repos
-				WHERE repo == "{repo}" AND owner == "{owner}" """
+				WHERE repo = '{repo}' AND owner = '{owner}' """
 		)
 		res = await session.execute(stmt)
 		return res.scalars().one_or_none()
@@ -109,7 +109,7 @@ class ReposRepository:
 		"""
 		stmt = text(
 			f"""INSERT INTO repos ({", ".join(str(value) for value in repo_dict.keys())})
-				VALUES ({", ".join(f'"{value}"' for value in repo_dict.values())}) """
+				VALUES ({", ".join('NULL' if value is None else f"'{value}'" for value in repo_dict.values())}) """
 		)
 		await session.execute(stmt)
 		await session.flush()

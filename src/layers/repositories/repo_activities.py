@@ -33,8 +33,8 @@ class RepoActivitiesRepository:
 			JOIN repos ON repo_activities.repo_id = repos.id
 			WHERE repos.owner = '{owner}'
 			AND repos.repo = '{repo}'
-			AND repo_activities.date >= DATE('{since}')
-			AND repo_activities.date <= DATE('{until}')
+			AND repo_activities.date >= TO_TIMESTAMP('{since}', 'YYYY-MM-DD')
+			AND repo_activities.date <= TO_TIMESTAMP('{until}', 'YYYY-MM-DD')
 			"""
         )
         res = await session.execute(stmt)

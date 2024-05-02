@@ -1,15 +1,14 @@
 version: '3.8'
 
 services:
-  app:
+  app_test:
     container_name: my_app
-    build: ./Dockerfile.tests
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
     depends_on:
       - db
     command: bash -c 'while !</dev/tcp/postgres/5432; do sleep 1; done; python -m pytest -s'
-    volumes:
-      - ./src:/app/src
-    restart: always
     env_file:
       - ./.env
   db:
@@ -17,11 +16,7 @@ services:
     image: postgres
     hostname: postgres
     environment:
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_DB=${TEST_DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-    ports:
-      - ${DB_PORT}:5432
-    restart: always
-    env_file:
-      - ./.env
+    restart: unless-stopped

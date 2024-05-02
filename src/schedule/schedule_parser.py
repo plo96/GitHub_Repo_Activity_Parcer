@@ -11,7 +11,7 @@ from src.core.schemas import RepoDTO, RepoActivityDTO, RepoParsing, RepoActivity
 from src.parsing import GithubParser, gh_parser
 from src.layers.services import RepoService, RepoActivitiesService
 
-DEFAULT_PAUSE_VALUE = 2  # Время паузы между запросами, секунды
+DEFAULT_PAUSE_VALUE = 1  # Время паузы между запросами, секунды
 
 
 class ScheduleParser:

@@ -41,14 +41,14 @@ class RepoActivitiesService:
             )
             if not res:
                 raise NoRepoActivities
-            since = datetime.fromisoformat(res._tuple()[0])  # noqa
+            since = (res._tuple()[0])       # noqa
         if not until:
             res = await RepoActivitiesRepository.get_max_activity_date(
                 session=session,
             )
             if not res:
                 raise NoRepoActivities
-            until = datetime.fromisoformat(res._tuple()[0])  # noqa
+            until = (res._tuple()[0])      # noqa
 
         until = until + timedelta(days=1)  # Потому что SQL(по крайней мере sqlite) считает "date":00-00 > "date"
         result = await RepoActivitiesRepository.get_repo_activities(
@@ -73,7 +73,7 @@ class RepoActivitiesService:
         for activity in result:
             activity = activity._asdict()  # noqa
             activity.pop("repo_id")
-            activity.__setitem__("date", datetime.fromisoformat(activity["date"]))
+            activity.__setitem__("date", activity["date"])
             activity.__setitem__("authors", list(activity['authors'].split(", ")))
             repo_activities_upload.append(RepoActivityUpload.model_validate(activity))
 

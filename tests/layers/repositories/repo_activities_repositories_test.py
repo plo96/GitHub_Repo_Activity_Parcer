@@ -32,7 +32,6 @@ async def test_get_repo_activities(
 		)
 		for index, activity in enumerate(activities_list):
 			activity = activity._asdict()
-			activity["date"] = datetime.fromisoformat(activity["date"])
 			activities_list[index] = activity
 		
 		stmt = select(
@@ -103,7 +102,7 @@ async def test_get_min_activity_date(
 			session=session,
 		)
 		
-		assert datetime.fromisoformat(res._tuple()[0]).date() == since
+		assert (res._tuple()[0]).date() == since
 		
 		stmt = text("DELETE FROM repo_activities")
 		await session.execute(stmt)
@@ -126,7 +125,7 @@ async def test_get_max_activity_date(
 			session=session,
 		)
 		
-		assert datetime.fromisoformat(res._tuple()[0]).date() == until
+		assert (res._tuple()[0]).date() == until
 		
 		stmt = text("DELETE FROM repo_activities")
 		await session.execute(stmt)

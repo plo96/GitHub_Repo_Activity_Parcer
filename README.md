@@ -30,7 +30,7 @@ GitHub Repo Activity Parcer - простое веб-приложение на py
   - httpx
   - pytest
 - PostgreSQL
-- docker, docker-compose
+- docker/docker-compose
 
 ## Запуск и настройка
 
@@ -56,10 +56,10 @@ GitHub Repo Activity Parcer - простое веб-приложение на py
         API_KEY=PASTE_YOUR_API_KEY_HERE      # Полученный в п.3 индивидуальный токен GitHub.
 
 5) Находясь в директории с приложением выполнить в терминале команду:
-  - 'docker-compose up --build -d '- для запуска контейнеров с БД и приложением.
+  - 'docker-compose up --build -d' - для запуска контейнеров с БД и приложением.
   - 'docker-compose -f docker-compose-tests.yml up --build -d' - для запуска контейнеров с БД и тестами.
   - 'docker logs -f my_app' - для интерактивного вывода логов приложения или тестов в консоль системы.
-  - 'docker-compose down' --remove-orphans - остановка всех работающих контейнеров и их удаление.
+  - 'docker-compose down --remove-orphans' - остановка всех работающих контейнеров и их удаление.
 ___
   **Во время работы приложения доступны endpoits для API:** 
 * /api/repos/top100 - *получение списка топа репозиториев GitHub по звёздам.*
